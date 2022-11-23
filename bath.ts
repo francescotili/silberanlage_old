@@ -1,6 +1,7 @@
 import { Auftrag } from './auftrag';
+import { CranePhase } from './crane';
 import { Priority } from './enums';
-import { standardWorkTimes } from './settings';
+import { defaultCraneTimes, standardWorkTimes } from './settings';
 
 export interface BathSettings {
   name?: string;
@@ -8,8 +9,7 @@ export interface BathSettings {
   type?: BathType;
   priority?: Priority;
   drainTime?: number;
-  pickupTime?: number;
-  nextBaths: [number];
+  nextBaths?: number[];
 }
 
 export enum BathStatus {
@@ -39,11 +39,14 @@ export class Bath {
   readonly is_enabled: boolean;
   readonly type: BathType | undefined;
   readonly priority: Priority;
+  readonly drainTime: number;
 
   private status: BathStatus;
   private remainingTime: number | undefined;
   public auftrag: Auftrag;
   public nextBaths: [number];
+
+  private tempDrainTime: number;
 
   constructor(number: number, bath: BathSettings) {
     this.id = number;
@@ -56,6 +59,16 @@ export class Bath {
     typeof bath.priority !== 'undefined'
       ? (this.priority = bath.priority)
       : (this.priority = Priority.Normal);
+    if (typeof bath.drainTime !== 'undefined') {
+      this.drainTime = bath.drainTime;
+    } else {
+      defaultCraneTimes.forEach((phase) => {
+        if ((phase.phaseType = CranePhase.Drain)) {
+          this.tempDrainTime = phase.workTime;
+        }
+      });
+      this.drainTime = this.tempDrainTime;
+    }
   }
 
   public updateTime(sampleTime: number): void {

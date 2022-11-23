@@ -71,60 +71,6 @@ operation.forEach((firstBath) => {
 });
 */
 
-/*function addEdge(adj, src, dest) {
-  adj[src].push(dest);
-}
-
-function printGraph(adj, v) {
-  for (let i = 0; i < v; i++) {
-    var temp = i + ' --> ';
-    for (let j = 0; j < adj[i].length; j++) {
-      temp = temp + adj[i][j] + ' ';
-    }
-    console.log(temp);
-  }
-}
-
-// Initialize data structure of the directed graph connections list
-const v = 32;
-let adj = new Array(v).fill(0).map(() => new Array());
-
-// Build graph
-addEdge(adj, 3, 7);
-addEdge(adj, 7, 8);
-addEdge(adj, 8, 9);
-addEdge(adj, 9, 10);
-addEdge(adj, 10, 11);
-addEdge(adj, 11, 12);
-addEdge(adj, 12, 13);
-addEdge(adj, 13, 14);
-addEdge(adj, 13, 15);
-addEdge(adj, 14, 16);
-addEdge(adj, 15, 16);
-addEdge(adj, 16, 17);
-addEdge(adj, 17, 18);
-addEdge(adj, 13, 20);
-addEdge(adj, 13, 21);
-addEdge(adj, 18, 20);
-addEdge(adj, 18, 21);
-addEdge(adj, 20, 23);
-addEdge(adj, 21, 23);
-addEdge(adj, 23, 24);
-addEdge(adj, 24, 26);
-addEdge(adj, 24, 30);
-addEdge(adj, 26, 31);
-addEdge(adj, 30, 31);
-addEdge(adj, 31, 3);
-addEdge(adj, 18, 31);
-/* addEdge(adj, 31, 27);
-addEdge(adj, 31, 28);
-addEdge(adj, 31, 29);
-addEdge(adj, 27, 31);
-addEdge(adj, 28, 31);
-addEdge(adj, 29, 31);
-
-printGraph(adj, v); */
-
 // HTML Code
 const appDiv: HTMLElement = document.getElementById('app');
 appDiv.innerHTML = `<h1>Silberanlage Simulation</h1>`;
