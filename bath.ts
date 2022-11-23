@@ -44,7 +44,7 @@ export class Bath {
   private status: BathStatus;
   private remainingTime: number | undefined;
   public auftrag: Auftrag;
-  public nextBaths: [number];
+  public nextBaths: number[];
 
   private tempDrainTime: number;
 

@@ -21,6 +21,11 @@ export interface CraneTime {
   workTime: number | undefined;
 }
 
+export interface CraneOperation {
+  originBath: number;
+  destinationBath: number;
+}
+
 export class Crane {
   public position: number;
   private status: CraneStatus;
