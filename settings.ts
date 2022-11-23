@@ -289,6 +289,7 @@ export const bathsInitData: BathSettings[] = [
 export const plantSettings = {
   AgCurrent: 100, // Ampere
   CuCurrent: 100, // Ampere
+  craneStartingPosition: 31,
 };
 
 export const simulationSettings = {

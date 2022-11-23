@@ -1,10 +1,15 @@
 // Import stylesheets
 import './style.css';
 
-// import Bath class & interfaces
+// Import data
+import { bathsInitData } from "./settings"
+
 // import Crane class & interfaces
 // import various interfaces
 // set all the cosstants
+
+// Initialize variables
+
 
 // import Bath configuration
 // init Bath & plant

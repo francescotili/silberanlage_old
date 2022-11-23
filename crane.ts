@@ -1,5 +1,5 @@
 import { Auftrag } from './auftrag';
-import { defaultCraneTimes } from './settings';
+import { defaultCraneTimes, plantSettings } from './settings';
 
 export enum CraneStatus {
   Waiting,
@@ -30,8 +30,14 @@ export class Crane {
   public position: number;
   private status: CraneStatus;
   auftrag: Auftrag | undefined;
-  remainingTime: number;
-  // request_chain:
+  remainingTime: number | undefined;
+  request_chain: CraneOperation[];
+
+  constructor() {
+    this.position = plantSettings.craneStartingPosition;
+    this.request_chain = [];
+    this.status = CraneStatus.Waiting;
+  }
 
   public updateTime(sampleTime: number): void {
     switch (this.status) {
