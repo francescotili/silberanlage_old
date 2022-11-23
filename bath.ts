@@ -59,12 +59,22 @@ export class Bath {
   }
 
   public updateTime(sampleTime: number): void {
-    if ((this.status = BathStatus.Working)) {
-      if (typeof this.remainingTime !== 'undefined') {
-        this.remainingTime -= sampleTime;
-        if (this.remainingTime <= 0) {
-          this.setStatus(BathStatus.Waiting);
+    switch (this.status) {
+      case BathStatus.Working: {
+        if (typeof this.remainingTime !== 'undefined') {
+          this.remainingTime -= sampleTime;
+          if (this.remainingTime <= 0) {
+            this.setStatus(BathStatus.Waiting);
+          }
         }
+        break;
+      }
+      case BathStatus.Free:
+      case BathStatus.Working: {
+        break;
+      }
+      default: {
+        break;
       }
     }
   }
@@ -94,6 +104,10 @@ export class Bath {
             'Fehler in Bad ' + this.id + ': kein Auftrag vorhanden!'
           );
         }
+        break;
+      }
+      default: {
+        break;
       }
     }
   }
