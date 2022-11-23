@@ -1,5 +1,4 @@
 import { WorkTime } from './bath';
-import { AuftragStatus } from './enums';
 // import { ProcessType } from "./enums"
 
 export interface AuftragSettings {
@@ -7,6 +6,16 @@ export interface AuftragSettings {
   material: string;
   workTimes: WorkTime[];
   // priority: Priority
+}
+
+export enum AuftragStatus {
+  Queue,
+  Loading,
+  Moving,
+  Working,
+  Waiting,
+  Unloading,
+  Completed,
 }
 
 export class Auftrag {
