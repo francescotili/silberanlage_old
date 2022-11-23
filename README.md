@@ -1,3 +1,3 @@
-# silberanlage
+# Silberplant Model
 
-[Edit on StackBlitz ⚡️](https://stackblitz.com/edit/typescript-sxze1z)
+A program in Typescript to modelize the Silverplant to efficiently estimate the production capacity and to enhance the productivity.
