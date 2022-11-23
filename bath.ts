@@ -41,7 +41,7 @@ export class Bath {
   readonly priority: Priority;
 
   private status: BathStatus;
-  public remainingTime: number | undefined;
+  private remainingTime: number | undefined;
   public auftrag: Auftrag;
   public nextBaths: [number];
 
@@ -56,6 +56,21 @@ export class Bath {
     typeof bath.priority !== 'undefined'
       ? (this.priority = bath.priority)
       : (this.priority = Priority.Normal);
+  }
+
+  public updateTime(sampleTime: number): void {
+    if ((this.status = BathStatus.Working)) {
+      if (typeof this.remainingTime !== 'undefined') {
+        this.remainingTime -= sampleTime;
+        if (this.remainingTime <= 0) {
+          this.setStatus(BathStatus.Waiting);
+        }
+      }
+    }
+  }
+
+  public getTime(): number | undefined {
+    return this.remainingTime;
   }
 
   public setStatus(status: BathStatus, auftrag?: Auftrag) {
