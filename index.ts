@@ -1,15 +1,25 @@
 // Import stylesheets
 import './style.css';
 
+// Import classes
+import { SilberAnlage } from './plant';
+
 // Import data
-import { bathsInitData } from "./settings"
+import { bathsInitData, aufragToWork } from './settings';
+
+// Debug
+import { BathType } from './bath';
+
+console.log(BathType.Copper);
+
+// Simulate
+//let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
 
 // import Crane class & interfaces
 // import various interfaces
 // set all the cosstants
 
 // Initialize variables
-
 
 // import Bath configuration
 // init Bath & plant
