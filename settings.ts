@@ -1,3 +1,4 @@
+import { AuftragSettings } from './auftrag';
 import { BathSettings, BathType, WorkTime } from './bath';
 import { CranePhase, CraneTime } from './crane';
 
@@ -282,5 +283,42 @@ export const bathsInitData: BathSettings[] = [
     type: BathType.LoadingStation,
     is_enabled: true,
     nextBaths: [3, 27, 28, 29],
+  },
+];
+
+export const plantSettings = {
+  AgCurrent: 100, // Ampere
+  CuCurrent: 100, // Ampere
+};
+
+export const simulationSettings = {
+  maxSimulationTime: 1800, // Seconds
+  sampleTime: 1, // Seconds
+};
+
+export const aufragToWork: AuftragSettings[] = [
+  {
+    number: '16589451',
+    material: '307.011.033',
+    workTimes: [
+      {
+        bathType: BathType.Silver,
+        workTime: 850,
+      },
+    ],
+  },
+  {
+    number: '166688745',
+    material: '205.023.022',
+    workTimes: [
+      {
+        bathType: BathType.Silver,
+        workTime: 1232,
+      },
+      {
+        bathType: BathType.Copper,
+        workTime: 560,
+      },
+    ],
   },
 ];
