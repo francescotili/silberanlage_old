@@ -58,4 +58,8 @@ export class Crane {
   public getTime(): number | undefined {
     return this.remainingTime;
   }
+
+  public getStatus(): BathStatus {
+    return this.status;
+  }
 }
