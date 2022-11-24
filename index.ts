@@ -6,9 +6,13 @@ import { SilberAnlage } from './plant';
 
 // Import data
 import { bathsInitData, aufragToWork } from './settings';
+import { GraphicMotor } from './graphics';
 
 // Simulate
 let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
+let graphics = new GraphicMotor(150, 150);
+
+graphics.updateView(silberanlage.baths);
 
 // import Crane class & interfaces
 // import various interfaces
@@ -83,4 +87,5 @@ operation.forEach((firstBath) => {
 
 // HTML Code
 const appDiv: HTMLElement = document.getElementById('app');
-appDiv.innerHTML = `<h1>Silberanlage Simulation</h1>`;
+const HTML_Title = '<h1>Silberanlage Simulation</h1>';
+appDiv.innerHTML = HTML_Title + graphics.updateView();
