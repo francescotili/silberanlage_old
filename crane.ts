@@ -1,20 +1,5 @@
 import { Auftrag } from './auftrag';
-import { defaultCraneTimes, plantSettings } from './settings';
-
-export enum CraneStatus {
-  Waiting,
-  Working,
-}
-
-export enum CranePhase {
-  Moving_startComponent,
-  Moving_middleComponent,
-  Moving_endComponent,
-  Moving_contiguousComponent,
-  Drop,
-  Pick,
-  Drain,
-}
+import { plantSettings } from './settings';
 
 export interface CraneTime {
   phaseType: CranePhase;
@@ -24,6 +9,21 @@ export interface CraneTime {
 export interface CraneOperation {
   originBath: number;
   destinationBath: number;
+}
+
+enum CraneStatus {
+  Waiting,
+  Working,
+}
+
+enum CranePhase {
+  Moving_startComponent,
+  Moving_middleComponent,
+  Moving_endComponent,
+  Moving_contiguousComponent,
+  Drop,
+  Pick,
+  Drain,
 }
 
 export class Crane {

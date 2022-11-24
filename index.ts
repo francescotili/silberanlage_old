@@ -7,13 +7,8 @@ import { SilberAnlage } from './plant';
 // Import data
 import { bathsInitData, aufragToWork } from './settings';
 
-// Debug
-import { BathType } from './bath';
-
-console.log(BathType.Copper);
-
 // Simulate
-//let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
+let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
 
 // import Crane class & interfaces
 // import various interfaces

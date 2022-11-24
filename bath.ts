@@ -1,6 +1,4 @@
 import { Auftrag } from './auftrag';
-import { CranePhase } from './crane';
-import { Priority } from './enums';
 import { defaultCraneTimes, standardWorkTimes } from './settings';
 
 export interface BathSettings {
@@ -12,13 +10,34 @@ export interface BathSettings {
   nextBaths?: number[];
 }
 
-export enum BathStatus {
+export interface WorkTime {
+  bathType: BathType;
+  workTime: number | undefined;
+}
+
+enum Priority {
+  Low,
+  Normal,
+  High,
+}
+
+enum CranePhase {
+  Moving_startComponent,
+  Moving_middleComponent,
+  Moving_endComponent,
+  Moving_contiguousComponent,
+  Drop,
+  Pick,
+  Drain,
+}
+
+enum BathStatus {
   Free,
   Waiting,
   Working,
 }
 
-export enum BathType {
+enum BathType {
   PreTreatment,
   Silver,
   Copper,
@@ -26,11 +45,6 @@ export enum BathType {
   RinseFlow,
   Parkplatz,
   LoadingStation,
-}
-
-export interface WorkTime {
-  bathType: BathType;
-  workTime: number | undefined;
 }
 
 export class Bath {
@@ -56,6 +70,9 @@ export class Bath {
     this.is_enabled = bath.is_enabled;
     this.status = BathStatus.Free;
     this.nextBaths = bath.nextBaths;
+    if (typeof bath.type !== 'undefined') {
+      this.type = bath.type;
+    }
     typeof bath.priority !== 'undefined'
       ? (this.priority = bath.priority)
       : (this.priority = Priority.Normal);

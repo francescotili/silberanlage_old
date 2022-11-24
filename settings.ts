@@ -1,6 +1,26 @@
 import { AuftragSettings } from './auftrag';
-import { BathSettings, BathType, WorkTime } from './bath';
-import { CranePhase, CraneTime } from './crane';
+import { BathSettings, WorkTime } from './bath';
+import { CraneTime } from './crane';
+
+enum BathType {
+  PreTreatment,
+  Silver,
+  Copper,
+  RinseStand,
+  RinseFlow,
+  Parkplatz,
+  LoadingStation,
+}
+
+enum CranePhase {
+  Moving_startComponent,
+  Moving_middleComponent,
+  Moving_endComponent,
+  Moving_contiguousComponent,
+  Drop,
+  Pick,
+  Drain,
+}
 
 /*
  * Hier müssen Standard Laufzeiten für Bäder eingetragen werden (falls vorhanden)
