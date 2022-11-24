@@ -19,7 +19,6 @@ export class SilberAnlage {
       this.baths.push(new Bath(+i, bathsInitData[i]));
     }
     console.log('Bäder inisialisiert');
-    console.log(this.baths);
 
     // Initialize Crane
     this.crane = new Crane();

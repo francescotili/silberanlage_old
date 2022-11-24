@@ -26,14 +26,15 @@ export class GraphicMotor {
     }
   }
 
-  updateView(baths: Bath): string {
+  updateView(baths: Bath[]): string {
+    console.log(baths);
     this.rendering = '';
     this.rendering += this.header;
     for (let h = 0; h < this.height; h++) {
       for (let w = 0; w < this.width; w++) {
         switch (w) {
           case 1: {
-            this.rendering += '1';
+            // this.rendering += baths[h].name;
             break;
           }
           default: {
