@@ -1,26 +1,25 @@
 import { BathView } from './plant';
 
 export class GraphicMotor {
-  readonly width: number;
   private readonly header = `<code>`;
   private readonly interline = `<br>`;
   private readonly footer = `</code>`;
+  private readonly HTML_Title = '<h1>Silberanlage Simulation</h1>';
 
   private data: string[][];
   private rendering: string;
 
-  constructor(width: number) {
-    this.width = width;
+  constructor() {
     this.rendering = '';
     this.data = [];
   }
 
   updateView(baths: BathView[]): string {
     this.rendering = '';
+    this.rendering += this.HTML_Title;
     this.rendering += this.header;
 
     const whitespace = '&nbsp;';
-    //const whitespace = "."
 
     let topLine: string;
     let middleLine: string;
@@ -34,6 +33,17 @@ export class GraphicMotor {
     const len5 = 3; // Separator >
     const len6 = 4; // Width of Bath visualization
 
+    // ---------
+    this.rendering += 'Crane example';
+    this.rendering += this.interline;
+    this.rendering += '&nbsp;&nbsp;&#9582;';
+    this.rendering += this.interline;
+    this.rendering += '&#9608;&#9608;&#9566;';
+    this.rendering += this.interline;
+    this.rendering += '&nbsp;&nbsp;&#9583;';
+    this.rendering += this.interline;
+    // ---------
+
     for (let bathID = 0; bathID < baths.length; bathID++) {
       // Top line building
       for (var i = 0; i < len1 + len2 + len3 + len4 + len5; i++) {
@@ -46,6 +56,7 @@ export class GraphicMotor {
       for (var i = 0; i < len1; i++) {
         this.rendering += whitespace;
       }
+      // Name of the bath
       if (typeof baths[bathID].name !== 'undefined') {
         for (var i = 0; i < len4 - baths[bathID].name.length; i++) {
           this.rendering += whitespace;
@@ -56,6 +67,7 @@ export class GraphicMotor {
           this.rendering += whitespace;
         }
       }
+      // Separator
       if (typeof baths[bathID].name !== 'undefined') {
         this.rendering += ' | ';
       } else {
@@ -63,15 +75,19 @@ export class GraphicMotor {
           this.rendering += whitespace;
         }
       }
+      // Bath number
       baths[bathID].number.length == 1
         ? (this.rendering += '0' + baths[bathID].number)
         : (this.rendering += baths[bathID].number);
+      // Indicator
       this.rendering += ' > ';
+      // Bath status
       if (baths[bathID].full) {
         this.rendering += '&#9475;&#9608;&#9608;&#9475;';
       } else {
         this.rendering += '&#9475;&nbsp;&nbsp;&#9475;';
       }
+      // EOL
       this.rendering += this.interline;
 
       // Bottom line building
@@ -84,27 +100,5 @@ export class GraphicMotor {
 
     this.rendering += this.footer;
     return this.rendering;
-
-    /*
-    const totLines = baths.length * 3;
-    var bathIndex = 0;
-
-    for (let line = 0; line < totLines; line++) {
-      if (isBathTitle(line)) {
-        if (typeof baths[bathIndex].name !== 'undefined') {
-          console.log(baths[bathIndex].name);
-          this.rendering += this.bathPlaceholderTop + this.interline;
-          this.rendering += this.bathPlaceholderMid.slice(0,20) + baths[bathIndex].name + this.bathPlaceholderMid.slice(baths[bathIndex].name.length * 5 ) + this.interline;
-          this.rendering += this.bathPlaceholderBot + this.interline;
-        }
-        bathIndex++;
-      } else {
-        this.rendering += this.bathPlaceholderTop + this.interline;
-        this.rendering += this.bathPlaceholderMid + this.interline;
-        this.rendering += this.bathPlaceholderBot + this.interline;
-      }
-    }
-
-    this.rendering += this.footer; */
   }
 }

@@ -10,13 +10,11 @@ import { GraphicMotor } from './graphics';
 
 // Simulate
 let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
-let graphics = new GraphicMotor(150, 150);
+let graphics = new GraphicMotor();
 
 // HTML Code
 const appDiv: HTMLElement = document.getElementById('app');
-const HTML_Title = '<h1>Silberanlage Simulation</h1>';
-appDiv.innerHTML =
-  HTML_Title + graphics.updateView(silberanlage.dataExportVisual());
+appDiv.innerHTML = graphics.updateView(silberanlage.dataExportVisual());
 
 // import Crane class & interfaces
 // import various interfaces
