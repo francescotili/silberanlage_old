@@ -1,4 +1,9 @@
 h1,
 h2 {
   font-family: Bahnschrift;
+  line-height: normal;
+}
+
+body {
+  line-height: 14px;
 }
