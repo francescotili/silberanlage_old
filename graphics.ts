@@ -1,4 +1,11 @@
-import { BathView } from './plant';
+import { Bath } from './bath';
+import { Crane } from './crane';
+
+enum BathStatus {
+  Free,
+  Waiting,
+  Working,
+}
 
 export class GraphicMotor {
   private readonly header = `<code>`;
@@ -14,7 +21,7 @@ export class GraphicMotor {
     this.data = [];
   }
 
-  updateView(baths: BathView[]): string {
+  updateView(baths: Bath[]): string {
     this.rendering = '';
     this.rendering += this.HTML_Title;
     this.rendering += this.header;
@@ -76,13 +83,13 @@ export class GraphicMotor {
         }
       }
       // Bath number
-      baths[bathID].number.length == 1
-        ? (this.rendering += '0' + baths[bathID].number)
-        : (this.rendering += baths[bathID].number);
+      baths[bathID].id.toString().length == 1
+        ? (this.rendering += '0' + baths[bathID].id)
+        : (this.rendering += baths[bathID].id);
       // Indicator
       this.rendering += ' > ';
       // Bath status
-      if (baths[bathID].full) {
+      if (baths[bathID].getStatus() !== BathStatus.Free ) {
         this.rendering += '&#9475;&#9608;&#9608;&#9475;';
       } else {
         this.rendering += '&#9475;&nbsp;&nbsp;&#9475;';

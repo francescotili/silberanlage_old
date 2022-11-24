@@ -14,7 +14,8 @@ let graphics = new GraphicMotor();
 
 // HTML Code
 const appDiv: HTMLElement = document.getElementById('app');
-appDiv.innerHTML = graphics.updateView(silberanlage.dataExportVisual());
+//appDiv.innerHTML = graphics.updateView(silberanlage.dataExportVisual());
+appDiv.innerHTML = graphics.updateView(silberanlage.baths)
 
 // import Crane class & interfaces
 // import various interfaces
