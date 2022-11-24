@@ -13,12 +13,10 @@ export class GraphicMotor {
   private readonly footer = `</code>`;
   private readonly HTML_Title = '<h1>Silberanlage Simulation</h1>';
 
-  private data: string[][];
   private rendering: string;
 
   constructor() {
     this.rendering = '';
-    this.data = [];
   }
 
   updateView(baths: Bath[]): string {
@@ -27,10 +25,6 @@ export class GraphicMotor {
     this.rendering += this.header;
 
     const whitespace = '&nbsp;';
-
-    let topLine: string;
-    let middleLine: string;
-    let bottomLine: string;
 
     // Characters for every string
     const len1 = 2;
