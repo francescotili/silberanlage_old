@@ -1,21 +1,63 @@
 // Import stylesheets
 import './style.css';
+const appDiv: HTMLElement = document.getElementById('app');
 
-// Import classes
+// Simulation class
+class Simulation {
+  simulationTime: number;
+
+  constructor() {
+    let startBtn = document.getElementById('start_btn');
+    startBtn.addEventListener('click', (e: Event) => {
+      this.simulationTime = maxSimTime;
+      this.simulate();
+    });
+  }
+
+  // Async/Await test function
+  async simulate() {
+    for (let t = 1; t <= this.simulationTime; t += sampleTime) {
+      appDiv.innerHTML = graphics.updateView(
+        silberanlage.baths,
+        silberanlage.crane,
+        t
+      );
+      await this.nextCycle();
+    }
+  }
+
+  public async nextCycle() {
+    return new Promise((resolve) => setTimeout(resolve, 20));
+  }
+}
+
 import { SilberAnlage } from './plant';
 
 // Import data
 import { bathsInitData, aufragToWork } from './settings';
 import { GraphicMotor } from './graphics';
 
-// Simulate
+/* * * * * * * * *
+ *   SIMULATION  *
+ * * * * * * * * */
+
+// Settings
+const sampleTime = 1; // Sample time in seconds
+const maxSimTime = 6000; // Max simulation duration in seconds
+
+// Initialize the plant
 let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
+
+// Initialize the graphics
 let graphics = new GraphicMotor();
 
-// HTML Code
-const appDiv: HTMLElement = document.getElementById('app');
-//appDiv.innerHTML = graphics.updateView(silberanlage.dataExportVisual());
+// Initialize view graphics
 appDiv.innerHTML = graphics.updateView(silberanlage.baths, silberanlage.crane);
+
+// Initialize simulation
+new Simulation();
+
+// silberanlage.updateBaths(sampleTime)
 
 // import Crane class & interfaces
 // import various interfaces

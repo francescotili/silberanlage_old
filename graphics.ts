@@ -15,8 +15,9 @@ enum CraneStatus {
 export class GraphicMotor {
   private readonly header = `<code>`;
   private readonly footer = `</code>`;
-  private readonly HTML_Title =
-    '<h1>Silberanlage Simulation &middot; 00:00:00</h1>';
+  private readonly title = 'Silberanlage Simulation';
+  private readonly button =
+    '<button id="start_btn">START</button><br>';
 
   private readonly graphics = {
     eol: '<br>',
@@ -76,9 +77,45 @@ export class GraphicMotor {
     this.rendering = '';
   }
 
-  updateView(baths: Bath[], crane: Crane): string {
+  private formatTime(globalSeconds: number): string {
+    const view_hours: number = Math.floor(globalSeconds / 3600);
+    const view_minutes: number = Math.floor(
+      (globalSeconds / 3600 - view_hours) * 60
+    );
+    const view_seconds: number = Math.floor(
+      ((globalSeconds / 3600 - view_hours) * 60 - view_minutes) * 60
+    );
+
+    let output = '';
+
+    view_hours < 10 ? (output += '0' + view_hours) : (output += view_hours);
+    output += ':';
+    view_minutes < 10
+      ? (output += '0' + view_minutes)
+      : (output += view_minutes);
+    output += ':';
+    view_seconds < 10
+      ? (output += '0' + view_seconds)
+      : (output += view_seconds);
+
+    return output;
+  }
+
+  updateView(baths: Bath[], crane: Crane, globalSeconds: number): string {
     this.rendering = '';
-    this.rendering += this.HTML_Title;
+
+    // HTML_Title
+    if (typeof globalSeconds !== 'undefined') {
+      this.rendering +=
+        '<h2>' +
+        this.title +
+        ' &middot; ' +
+        this.formatTime(globalSeconds) +
+        '</h2>';
+    } else {
+      this.rendering += '<h2>' + this.title + '</h2>';
+    }
+    this.rendering += this.button;
     this.rendering += this.header;
 
     /* * * * * * *
