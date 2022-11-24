@@ -8,12 +8,6 @@ enum BathStatus {
   Working,
 }
 
-export interface BathView {
-  name: string;
-  number: string;
-  full: boolean;
-}
-
 export class SilberAnlage {
   baths: Bath[];
   crane: Crane;
@@ -42,24 +36,5 @@ export class SilberAnlage {
       this.auftrags.push(new Auftrag(auftragsData[i]));
     }
     console.log('Aufträge geladen');
-  }
-
-  dataExportVisual(): BathView[] {
-    let bathsViews: BathView[] = [];
-    this.baths.forEach((bath) => {
-      if (bath.id !== 0) {
-        // Remove dummy bad 0
-        let viewData: BathView = {
-          name: bath.name,
-          number: bath.id.toString(),
-          full: false,
-        };
-        if (bath.getStatus() !== BathStatus.Free) {
-          viewData.full = true;
-        }
-        bathsViews.push(viewData);
-      }
-    });
-    return bathsViews;
   }
 }
