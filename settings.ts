@@ -1,7 +1,5 @@
 import { AuftragSettings } from './auftrag';
 import { BathSettings, WorkTime } from './bath';
-import { CraneTime } from './crane';
-
 enum BathType {
   PreTreatment,
   Silver,
@@ -10,16 +8,6 @@ enum BathType {
   RinseFlow,
   Parkplatz,
   LoadingStation,
-}
-
-enum CranePhase {
-  Moving_startComponent,
-  Moving_middleComponent,
-  Moving_endComponent,
-  Moving_contiguousComponent,
-  Drop,
-  Pick,
-  Drain,
 }
 
 /*
@@ -61,43 +49,17 @@ export const standardWorkTimes: WorkTime[] = [
  * Hier müssen Standard Zeiten dür die Cranephasen eingetragen werden
  * Messeinheit ist Sekunden
  */
-export const defaultCraneTimes: CraneTime[] = [
-  {
-    /* Standard Abtropfzeit */
-    phaseType: CranePhase.Drain,
-    workTime: 15,
+export const defaultCraneTimes = {
+  drain: 15, // Standard Abtropfzeit
+  drop: 20, // Absenkzeit
+  pick: 20, // Abholzeit
+  moving: {
+    start: 6, // Zeit vom ersten Bad bis zur zweiten Bad
+    middle: 2, // Zeit zwischen Bäder die weder Destination- noch Urpsrungsbad sind
+    end: 3, // Zeit vom vorletzten Bad bis zur Position auf dem Zielbad
+    contiguous: 5, // Zeit wenn Destination- und Ursprungbad sind einer nach einander
   },
-  {
-    /* Absenkzeit */
-    phaseType: CranePhase.Drop,
-    workTime: 20,
-  },
-  {
-    /* Abholzeit */
-    phaseType: CranePhase.Pick,
-    workTime: 20,
-  },
-  {
-    /* Zeit vom vorletzten Bad bis zur Position auf dem Zielbad */
-    phaseType: CranePhase.Moving_endComponent,
-    workTime: 6,
-  },
-  {
-    /* Zeit vom ersten Bad bis zur zweiten Bad */
-    phaseType: CranePhase.Moving_startComponent,
-    workTime: 3,
-  },
-  {
-    /* Zeit zwischen Bäder die weder Destination- noch Urpsrungsbad sind */
-    phaseType: CranePhase.Moving_middleComponent,
-    workTime: 2,
-  },
-  {
-    /* Zeit wenn Destination- und Ursprungbad sind einer nach einander */
-    phaseType: CranePhase.Moving_contiguousComponent,
-    workTime: 5,
-  },
-];
+};
 
 /*
  * Hier müssen alle die Bäder spezifiziert werden

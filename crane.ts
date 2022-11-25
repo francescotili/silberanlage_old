@@ -1,11 +1,6 @@
 import { Auftrag } from './auftrag';
 import { plantSettings } from './settings';
 
-export interface CraneTime {
-  phaseType: CranePhase;
-  workTime: number | undefined;
-}
-
 export interface CraneOperation {
   originBath: number;
   destinationBath: number;
@@ -16,19 +11,18 @@ enum CraneStatus {
   Working,
 }
 
-enum CranePhase {
-  Moving_startComponent,
-  Moving_middleComponent,
-  Moving_endComponent,
-  Moving_contiguousComponent,
-  Drop,
-  Pick,
-  Drain,
+enum CraneWorkingPhase {
+  Moving,
+  Dropping,
+  Picking,
+  Draining,
+  Waiting,
 }
 
 export class Crane {
   public position: number;
   private status: CraneStatus;
+  private phase: CraneWorkingPhase;
   auftrag: Auftrag | undefined;
   remainingTime: number | undefined;
   request_chain: CraneOperation[];
@@ -42,15 +36,22 @@ export class Crane {
   public updateTime(sampleTime: number): void {
     switch (this.status) {
       case CraneStatus.Working: {
-        this.remainingTime -= sampleTime;
-        if (this.remainingTime <= 0) {
-          this.status = CraneStatus.Waiting;
+        switch (this.phase) {
+          case CraneWorkingPhase.Picking:
+          case CraneWorkingPhase.Draining:
+          case CraneWorkingPhase.Moving:
+          case CraneWorkingPhase.Dropping:
+          default: {
+            console.error("Der Zusammenhang zwischen dem Status und der Phase des Krans ist nicht korrekt")
+            break;
+          }
         }
       }
       case CraneStatus.Waiting: {
         break;
       }
       default:
+        console.error("Der Kran befindet sich in einem unerwarteter Status")
         break;
     }
   }

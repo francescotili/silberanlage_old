@@ -79,12 +79,7 @@ export class Bath {
     if (typeof bath.drainTime !== 'undefined') {
       this.drainTime = bath.drainTime;
     } else {
-      defaultCraneTimes.forEach((phase) => {
-        if ((phase.phaseType = CranePhase.Drain)) {
-          this.tempDrainTime = phase.workTime;
-        }
-      });
-      this.drainTime = this.tempDrainTime;
+      this.drainTime = defaultCraneTimes.drain;
     }
   }
 
