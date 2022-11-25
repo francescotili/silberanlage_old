@@ -59,7 +59,7 @@ export class Crane {
     return this.remainingTime;
   }
 
-  public getStatus(): BathStatus {
+  public getStatus(): CraneStatus {
     return this.status;
   }
 }

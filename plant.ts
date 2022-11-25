@@ -8,6 +8,11 @@ enum BathStatus {
   Working,
 }
 
+enum CraneStatus {
+  Waiting,
+  Working,
+}
+
 export class SilberAnlage {
   baths: Bath[];
   crane: Crane;
@@ -36,5 +41,61 @@ export class SilberAnlage {
       this.auftrags.push(new Auftrag(auftragsData[i]));
     }
     console.log('Aufträge geladen');
+  }
+
+  public updateBaths(sampleTime: number) {
+    this.baths.forEach((bath) => {
+      switch (bath.getStatus()) {
+        case BathStatus.Working: {
+          /* countdown bath.remainingTIme
+             if bath.remainingTime still > 0
+             > do nothing
+             else
+             > set bath to "Waiting"
+               append operation to Crane
+               set bath.remainingTime to 0 */
+          break;
+        }
+        case BathStatus.Free:
+        case BathStatus.Waiting: {
+          break;
+        }
+      }
+    });
+  }
+
+  public updateCrane(sampleTime: number) {
+    switch (this.crane.getStatus()) {
+      case CraneStatus.Working: {
+        /* countdown crane.remainingTime
+           if crane.remainingTime still > 0
+           > update currentPosition (TO BE STUDIED)
+           else
+           > set current Bath to "Working"
+             set bath.remainingTime
+             set crane to "Waiting"
+             transfer Auftrag from Crane to Bath
+             set crane.remainingTime = 0 */
+        break;
+      }
+      case CraneStatus.Waiting: {
+        /* read operation list
+           filter out impossible operations (destination bath not free)
+           if we have = 0 operation left
+           > do nothing
+           if we have = 1 operation left
+           > calculate needed time per the operation based on:
+             > currentPos, pickupPos, pickupTimes, dropPos, dropTimes
+             do the operation
+             > set crane.remainingTime
+               set crane to "Working"
+           if we have > 1 but <= 3 operations left (TO BE BETTER IMPLEMENTED)
+           > calculate every order-combination and corresponding times to execute all
+             choose the order to follow based on the shorter time
+             start doing the first operation of the order
+             > set crane.remainingTime
+               set crane to "Working" */
+      }
+    }
   }
 }
