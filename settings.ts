@@ -1,5 +1,6 @@
 import { AuftragSettings } from './auftrag';
 import { BathSettings, WorkTime } from './bath';
+
 enum BathType {
   PreTreatment,
   Silver,
@@ -8,6 +9,12 @@ enum BathType {
   RinseFlow,
   Parkplatz,
   LoadingStation,
+}
+
+enum Process {
+  SilverElectroplating,
+  Subcoppering,
+  Rework,
 }
 
 /*
@@ -286,27 +293,38 @@ export const simulationSettings = {
 
 export const aufragToWork: AuftragSettings[] = [
   {
-    number: '16589451',
-    material: '307.011.033',
-    workTimes: [
-      {
-        bathType: BathType.Silver,
-        workTime: 850,
-      },
-    ],
+    number: '16458719',
+    material: '276.141.011',
+    process: Process.SilverElectroplating,
+    silverAmount: 1.299,
+    quantity: 40108,
   },
   {
-    number: '166688745',
-    material: '205.023.022',
-    workTimes: [
-      {
-        bathType: BathType.Silver,
-        workTime: 1232,
-      },
-      {
-        bathType: BathType.Copper,
-        workTime: 560,
-      },
-    ],
+    number: '16364066',
+    material: '307.168.011',
+    process: Process.SilverElectroplating,
+    silverAmount: 5.56,
+    quantity: 40150,
+  },
+  {
+    number: '16477107',
+    material: '276.270.021',
+    process: Process.SilverElectroplating,
+    silverAmount: 0.68,
+    quantity: 50390,
+  },
+  {
+    number: '16473799',
+    material: '257.024.101',
+    process: Process.SilverElectroplating,
+    silverAmount: 17.345,
+    quantity: 18000,
+  },
+  {
+    number: '16473789',
+    material: '279.124.011',
+    process: Process.SilverElectroplating,
+    silverAmount: 5.983,
+    quantity: 30000,
   },
 ];

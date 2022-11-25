@@ -1,5 +1,5 @@
 import { Auftrag } from './auftrag';
-import { defaultCraneTimes, standardWorkTimes } from './settings';
+import { defaultCraneTimes } from './settings';
 
 export interface BathSettings {
   name?: string;
@@ -19,16 +19,6 @@ enum Priority {
   Low,
   Normal,
   High,
-}
-
-enum CranePhase {
-  Moving_startComponent,
-  Moving_middleComponent,
-  Moving_endComponent,
-  Moving_contiguousComponent,
-  Drop,
-  Pick,
-  Drain,
 }
 
 enum BathStatus {
@@ -123,7 +113,7 @@ export class Bath {
       case BathStatus.Working: {
         if (typeof auftrag !== 'undefined') {
           this.auftrag = auftrag;
-          this.remainingTime = this.getWorkTime(auftrag.workTimes);
+          this.remainingTime = auftrag.getWorkTime(this.type);
         } else {
           console.error(
             'Fehler in Bad ' + this.id + ': kein Auftrag vorhanden!'
@@ -139,33 +129,5 @@ export class Bath {
 
   public getStatus(): BathStatus {
     return this.status;
-  }
-
-  private getWorkTime(auftragWorkTimes: WorkTime[]): number | undefined {
-    auftragWorkTimes.forEach((bath) => {
-      if (bath.bathType === this.type) {
-        if (typeof bath.workTime !== 'undefined') {
-          return bath.workTime;
-        } else {
-          standardWorkTimes.forEach((stdBath) => {
-            if (stdBath.bathType === this.type) {
-              return stdBath.workTime;
-            } else {
-              console.error(
-                'Fehler in Bad ' + this.id + ': kein Laufzeit vorhanden!'
-              );
-              return undefined;
-            }
-          });
-        }
-      } else {
-        console.error(
-          'Fehler in Bad ' + this.id + ': kein Laufzeit vorhanden!'
-        );
-        return undefined;
-      }
-    });
-    console.error('Fehler in Bad ' + this.id + ': kein Laufzeit vorhanden!');
-    return undefined;
   }
 }
