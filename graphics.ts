@@ -16,8 +16,7 @@ export class GraphicMotor {
   private readonly header = `<code>`;
   private readonly footer = `</code>`;
   private readonly title = 'Silberanlage Simulation';
-  private readonly button =
-    '<button id="start_btn">START</button><br>';
+  private readonly button = '<button id="start_btn">START</button><br>';
 
   private readonly graphics = {
     eol: '<br>',
@@ -106,16 +105,19 @@ export class GraphicMotor {
 
     // HTML_Title
     if (typeof globalSeconds !== 'undefined') {
-      this.rendering +=
-        '<h2>' +
-        this.title +
-        ' &middot; ' +
-        this.formatTime(globalSeconds) +
-        '</h2>';
+      if (globalSeconds > 0) {
+        this.rendering +=
+          '<h2>' +
+          this.title +
+          ' &middot; ' +
+          this.formatTime(globalSeconds) +
+          '</h2>';
+      } else {
+        this.rendering += '<h2>' + this.title + this.button + '</h2>';
+      }
     } else {
-      this.rendering += '<h2>' + this.title + '</h2>';
+      this.rendering += '<h2>' + this.title + this.button + '</h2>';
     }
-    this.rendering += this.button;
     this.rendering += this.header;
 
     /* * * * * * *

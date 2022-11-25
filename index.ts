@@ -1,75 +1,65 @@
 // Import stylesheets
 import './style.css';
+import { plantSettings } from './settings';
 const appDiv: HTMLElement = document.getElementById('app');
+
+interface SimulationSettings {
+  speed: number;
+  maxTime: number;
+  sampleTime: number;
+}
 
 // Simulation class
 class Simulation {
   simulationTime: number;
+  startBtn: HTMLElement;
 
   constructor() {
-    let startBtn = document.getElementById('start_btn');
-    startBtn.addEventListener('click', (e: Event) => {
-      this.simulationTime = maxSimTime;
-      this.simulate();
+    this.startBtn = document.getElementById('start_btn');
+    this.startBtn.addEventListener('click', (e: Event) => {
+      // this.simulationTime = maxSimTime;
+      this.simulate(plantSettings.simulation as SimulationSettings);
     });
   }
 
   // Async/Await test function
-  async simulate() {
-    for (let t = 1; t <= this.simulationTime; t += sampleTime) {
-      appDiv.innerHTML = graphics.updateView(
-        silberanlage.baths,
-        silberanlage.crane,
-        t
-      );
-      await this.nextCycle();
-    }
+  async simulate(simulation: SimulationSettings) {
+    let time = 0;
+    setInterval(() => {
+      if (time === simulation.maxTime) {
+        // Stops the simulation
+        return (appDiv.innerHTML = graphics.updateView(
+          silberanlage.baths,
+          silberanlage.crane,
+          time
+        ));
+      } else {
+        // Simulate next step
+
+        // Update graphics
+        appDiv.innerHTML = graphics.updateView(
+          silberanlage.baths,
+          silberanlage.crane,
+          time
+        );
+        time += simulation.sampleTime;
+      }
+    }, 1000 / simulation.speed);
   }
 
-  public async nextCycle() {
-    return new Promise((resolve) => setTimeout(resolve, 20));
-  }
-}
+  // silberanlage.updateBaths(sampleTime)
 
-import { SilberAnlage } from './plant';
+  // import Crane class & interfaces
+  // import various interfaces
+  // set all the cosstants
 
-// Import data
-import { bathsInitData, aufragToWork } from './settings';
-import { GraphicMotor } from './graphics';
+  // Initialize variables
 
-/* * * * * * * * *
- *   SIMULATION  *
- * * * * * * * * */
+  // import Bath configuration
+  // init Bath & plant
+  // import Auftrags
 
-// Settings
-const sampleTime = 1; // Sample time in seconds
-const maxSimTime = 6000; // Max simulation duration in seconds
-
-// Initialize the plant
-let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
-
-// Initialize the graphics
-let graphics = new GraphicMotor();
-
-// Initialize view graphics
-appDiv.innerHTML = graphics.updateView(silberanlage.baths, silberanlage.crane);
-
-// Initialize simulation
-new Simulation();
-
-// silberanlage.updateBaths(sampleTime)
-
-// import Crane class & interfaces
-// import various interfaces
-// set all the cosstants
-
-// Initialize variables
-
-// import Bath configuration
-// init Bath & plant
-// import Auftrags
-
-/* start simulation
+  /* start simulation
   cicle to all baths
     if bath is Working
       countdown bath.remainingTime
@@ -115,7 +105,7 @@ new Simulation();
 
 ==> repeat cicle! */
 
-/* how to calculate all possible combinations
+  /* how to calculate all possible combinations
 const operation = ['A', 'B', 'C', 'D'];
 operation.forEach((firstBath) => {
   operation.forEach((secondBath) => {
@@ -129,3 +119,30 @@ operation.forEach((firstBath) => {
   });
 });
 */
+}
+
+import { SilberAnlage } from './plant';
+
+// Import data
+import { bathsInitData, aufragToWork } from './settings';
+import { GraphicMotor } from './graphics';
+
+/* * * * * * * * *
+ *   SIMULATION  *
+ * * * * * * * * */
+
+// Initialize the plant
+let silberanlage = new SilberAnlage(bathsInitData, aufragToWork);
+
+// Initialize the graphics
+let graphics = new GraphicMotor();
+
+// Initialize view graphics
+appDiv.innerHTML = graphics.updateView(
+  silberanlage.baths,
+  silberanlage.crane,
+  0
+);
+
+// Initialize simulation
+new Simulation();
