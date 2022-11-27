@@ -12,7 +12,7 @@ export interface BathSettings {
 
 export interface WorkTime {
   bathType: BathType;
-  workTime: number | undefined;
+  time: number | undefined;
 }
 
 enum Priority {
@@ -74,23 +74,8 @@ export class Bath {
   }
 
   public updateTime(sampleTime: number): void {
-    switch (this.status) {
-      case BathStatus.Working: {
-        if (typeof this.remainingTime !== 'undefined') {
-          this.remainingTime -= sampleTime;
-          if (this.remainingTime <= 0) {
-            this.setStatus(BathStatus.Waiting);
-          }
-        }
-        break;
-      }
-      case BathStatus.Free:
-      case BathStatus.Working: {
-        break;
-      }
-      default: {
-        break;
-      }
+    if (typeof this.remainingTime !== 'undefined') {
+      this.remainingTime -= sampleTime;
     }
   }
 

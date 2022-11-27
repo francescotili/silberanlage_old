@@ -24,31 +24,31 @@ enum Process {
 export const standardWorkTimes: WorkTime[] = [
   {
     bathType: BathType.Copper,
-    workTime: undefined,
+    time: undefined,
   },
   {
     bathType: BathType.LoadingStation,
-    workTime: 120,
+    time: 120,
   },
   {
     bathType: BathType.Parkplatz,
-    workTime: undefined,
+    time: undefined,
   },
   {
     bathType: BathType.PreTreatment,
-    workTime: 600,
+    time: 600,
   },
   {
     bathType: BathType.RinseFlow,
-    workTime: 900,
+    time: 900,
   },
   {
     bathType: BathType.RinseStand,
-    workTime: 5,
+    time: 5,
   },
   {
     bathType: BathType.Silver,
-    workTime: undefined,
+    time: undefined,
   },
 ];
 
@@ -312,6 +312,12 @@ export const aufragToWork: AuftragSettings[] = [
     process: Process.SilverElectroplating,
     silverAmount: 0.68,
     quantity: 50390,
+    workTimeOverride: [
+      {
+        bathType: BathType.RinseFlow,
+        time: 300,
+      },
+    ],
   },
   {
     number: '16473799',

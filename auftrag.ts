@@ -28,7 +28,7 @@ enum BathType {
 
 interface WorkTime {
   bathType: BathType;
-  workTime: number;
+  time: number;
 }
 
 export interface AuftragSettings {
@@ -48,6 +48,7 @@ export class Auftrag {
   readonly silverAmount: number; // Ag Bedarf in g/1000 Stück
   readonly copperAmount: number; // Cu Bedarf in g/1000 Stück
   readonly quantity: number; // Stückzahl
+  readonly workTimeOverride: WorkTime[];
   private status: AuftragStatus;
 
   constructor(auftrag: AuftragSettings) {
@@ -60,13 +61,61 @@ export class Auftrag {
       this.copperAmount = auftrag.copperAmount;
     }
     this.quantity = auftrag.quantity;
+    if (typeof auftrag.workTimeOverride !== 'undefined') {
+      this.workTimeOverride = auftrag.workTimeOverride;
+    }
   }
 
   public getWorkTime(bathType: BathType | undefined): number {
-    // Calculate worktime based on Bath type, process and auftrag data
-    // Use standardwork time if no override provided
-    // Laufzeit = ([AgBedarf_kgPro1000]*([Stückzahl]/1000))/(0.067*100)
-    return 60;
+    if (typeof bathType !== 'undefined') {
+      switch (bathType) {
+        case BathType.Copper: {
+          // TODO
+          console.warn('Kupfer Laufzeitberechnung noch nicht implementiert');
+          return 0;
+        }
+        case BathType.Silver: {
+          return ((this.silverAmount * (this.quantity / 1000)) / 6.7) * 60;
+        }
+        case BathType.PreTreatment:
+        case BathType.RinseFlow:
+        case BathType.RinseStand: {
+          if (typeof this.workTimeOverride !== 'undefined') {
+            this.workTimeOverride.forEach((workTime) => {
+              if (workTime.bathType === bathType) {
+                return workTime.time;
+              } else {
+                standardWorkTimes.forEach((stdWorkTime) => {
+                  if (stdWorkTime.bathType === bathType) {
+                    return stdWorkTime.time;
+                  } else {
+                    return 0;
+                  }
+                });
+              }
+            });
+          } else {
+            standardWorkTimes.forEach((stdWorkTime) => {
+              if (stdWorkTime.bathType === bathType) {
+                return stdWorkTime.time;
+              } else {
+                return 0;
+              }
+            });
+          }
+        }
+        case BathType.LoadingStation:
+        case BathType.Parkplatz:
+        default: {
+          return 604800; // Infinite time (1 week)
+        }
+      }
+    } else {
+      console.error(
+        'Fehler in getWorkTime für Auftrag: kein BathType vorhanden!'
+      );
+      return 0;
+    }
   }
 
   public updateStatus(status: AuftragStatus) {

@@ -27,6 +27,10 @@ class Simulation {
     let time = 0;
     setInterval(() => {
       if (time === simulation.maxTime) {
+        // Simulate last step
+        silberanlage.updateBaths(simulation.sampleTime);
+        silberanlage.updateCrane(simulation.sampleTime);
+
         // Stops the simulation
         return (appDiv.innerHTML = graphics.updateView(
           silberanlage.baths,

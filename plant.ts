@@ -47,13 +47,14 @@ export class SilberAnlage {
     this.baths.forEach((bath) => {
       switch (bath.getStatus()) {
         case BathStatus.Working: {
-          /* countdown bath.remainingTIme
-             if bath.remainingTime still > 0
-             > do nothing
-             else
-             > set bath to "Waiting"
-               append operation to Crane
-               set bath.remainingTime to 0 */
+          bath.updateTime(sampleTime);
+
+          if (bath.getTime() <= 0) {
+            // Bath has worked the set time
+            bath.setStatus(BathStatus.Waiting);
+
+            // Append operation to Crane
+          }
           break;
         }
         case BathStatus.Free:
@@ -67,6 +68,7 @@ export class SilberAnlage {
   public updateCrane(sampleTime: number) {
     switch (this.crane.getStatus()) {
       case CraneStatus.Working: {
+        this.crane.updateTime(sampleTime);
         /* countdown crane.remainingTime
            if crane.remainingTime still > 0
            > update currentPosition (TO BE STUDIED)
