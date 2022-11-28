@@ -1,82 +1,76 @@
 import { Auftrag } from './auftrag';
 import { plantSettings, defaultCraneTimes } from './settings';
 
-export interface CraneOperation {
-  originBath: number;
-  destinationBath: number;
-  // priority: Priority
-}
-
 enum CraneStatus {
   Waiting,
   Working,
 }
 
-enum CraneWorkingPhase {
+export enum CraneWorkingPhase {
   Moving,
   Dropping,
   Picking,
   Draining,
-  Waiting,
+}
+
+export interface CraneOperation {
+  origin: number;
+  destination?: number;
+  time: number;
+  phase: CraneWorkingPhase;
+  transferAuftrag: boolean;
+  // priority: Priority
 }
 
 export class Crane {
   public position: number;
   private status: CraneStatus;
-  private phase: CraneWorkingPhase;
   auftrag: Auftrag | undefined;
   remainingTime: number | undefined;
-  operationTime: number | undefined;
-  private request_chain: CraneOperation[];
+  phases: CraneOperation[];
 
   constructor() {
     this.position = plantSettings.craneStartingPosition;
-    this.request_chain = [];
     this.status = CraneStatus.Waiting;
-  }
-
-  public appendOperation(operation: CraneOperation) {
-    // FIFO Logic - TODO: manage Priority
-    this.request_chain.push(operation);
+    this.phases = [];
   }
 
   public updateTime(sampleTime: number): void {
-    switch (this.status) {
-      case CraneStatus.Working: {
-        this.remainingTime -= sampleTime;
+    this.remainingTime -= sampleTime;
+    this.updatePosition();
+  }
 
-        if (this.remainingTime <= 0) {
-          this.setStatus(CraneStatus.Waiting);
-        } else {
-          // Update crane position - TODO
-        }
-
-        /*switch (this.phase) {
-          case CraneWorkingPhase.Picking:
-          case CraneWorkingPhase.Draining:
-          case CraneWorkingPhase.Moving:
-          case CraneWorkingPhase.Dropping:
-          default: {
-            console.error(
-              'Der Zusammenhang zwischen dem Status und der Phase des Krans ist nicht korreky'
-            );
-            break;
-          }
-        } */
-      }
-      case CraneStatus.Waiting: {
-        if (this.request_chain.length > 0) {
-          this.setStatus(CraneStatus.Working);
-        }
+  private updatePosition(): void {
+    switch (this.getPhase()) {
+      case CraneWorkingPhase.Draining:
+      case CraneWorkingPhase.Picking:
+      case CraneWorkingPhase.Dropping: {
+        this.position = this.phases[0].origin;
         break;
       }
-      default:
-        console.error('Der Kran befindet sich in einem unerwarteter Status');
+      case CraneWorkingPhase.Moving: {
+        this.position = Math.floor(
+          this.remainingTime /
+            (this.phases[0].time /
+              (this.phases[0].destination - this.phases[0].origin)) +
+            this.phases[0].origin
+        );
+      }
+      case undefined: {
         break;
+      }
     }
   }
 
-  public setStatus(status: CraneStatus): void {
+  public getPhase(): CraneWorkingPhase | undefined {
+    if (this.phases.length > 0) {
+      return this.phases[0].phase;
+    } else {
+      return undefined;
+    }
+  }
+
+  public setStatus(status: CraneStatus, phases?: CraneOperation[]): void {
     this.status = status;
     switch (this.status) {
       case CraneStatus.Waiting: {
@@ -84,8 +78,18 @@ export class Crane {
         break;
       }
       case CraneStatus.Working: {
-        // FIFO
-        this.startOperation(this.request_chain[0]);
+        if (typeof phases !== 'undefined') {
+          this.phases = phases;
+          this.remainingTime = 0;
+          this.phases.forEach((phase) => {
+            this.remainingTime += phase.time;
+          });
+        } else {
+          console.error(
+            "Der Krane wurde auf 'Working' eingesetzt, aber keine Operation wurde gesendet"
+          );
+        }
+        break;
       }
       default: {
         break;
@@ -101,45 +105,25 @@ export class Crane {
     return this.status;
   }
 
-  private startOperation(operation: CraneOperation): void {
-    // Calculate total time
-    let totalTime = 0;
-
-    // Time to move from current position to origin position
-    totalTime += calculateMovingTime(this.position - operation.originBath);
-
-    // Time to pickup & drain
-    // TODO: respect drainTime from the bath
-    totalTime += defaultCraneTimes.drain + defaultCraneTimes.pick;
-
-    // Time to move from origin to destination position
-    totalTime += calculateMovingTime(
-      operation.originBath - operation.destinationBath
-    );
-
-    // Time to drop
-    totalTime += defaultCraneTimes.drop;
-
-    function calculateMovingTime(distance: number): number {
-      switch (Math.abs(distance)) {
-        case 0: {
-          // Already in position
-          return 0;
-        }
-        case 1: {
-          // Adiacent bath
-          return defaultCraneTimes.moving.contiguous;
-        }
-        case 2: {
-          return defaultCraneTimes.moving.start + defaultCraneTimes.moving.end;
-        }
-        default: {
-          return (
-            defaultCraneTimes.moving.start +
-            defaultCraneTimes.moving.middle * (Math.abs(distance) - 2) +
-            defaultCraneTimes.moving.end
-          );
-        }
+  public calculateMovingTime(distance: number): number {
+    switch (Math.abs(distance)) {
+      case 0: {
+        // Already in position
+        return 0;
+      }
+      case 1: {
+        // Adiacent bath
+        return defaultCraneTimes.moving.contiguous;
+      }
+      case 2: {
+        return defaultCraneTimes.moving.start + defaultCraneTimes.moving.end;
+      }
+      default: {
+        return (
+          defaultCraneTimes.moving.start +
+          defaultCraneTimes.moving.middle * (Math.abs(distance) - 2) +
+          defaultCraneTimes.moving.end
+        );
       }
     }
   }

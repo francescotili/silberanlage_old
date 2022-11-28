@@ -50,7 +50,7 @@ export class Bath {
   public auftrag: Auftrag;
   public nextBaths: number[];
 
-  private tempDrainTime: number;
+  //private tempDrainTime: number;
 
   constructor(number: number, bath: BathSettings) {
     this.id = number;

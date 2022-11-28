@@ -104,7 +104,9 @@ export class Auftrag {
             });
           }
         }
-        case BathType.LoadingStation:
+        case BathType.LoadingStation: {
+          return 60;
+        }
         case BathType.Parkplatz:
         default: {
           return 604800; // Infinite time (1 week)
@@ -118,8 +120,8 @@ export class Auftrag {
     }
   }
 
-  public updateStatus(status: AuftragStatus) {
-    // TO DO
+  public setStatus(status: AuftragStatus): void {
+    this.status = status;
   }
 
   public getStatus(): AuftragStatus {
