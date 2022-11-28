@@ -113,6 +113,7 @@ export class SilberAnlage {
 
   private appendOperation(bathId: number) {
     this.bathsWaiting.push(bathId);
+    console.log('Bad nr. ' + bathId + ' hat der Krane angerufen');
   }
 
   public updateCrane(sampleTime: number) {
@@ -249,11 +250,11 @@ export class SilberAnlage {
   }
 
   private findDestinationBath(bath: Bath): Bath | undefined {
-    bath.nextBaths.forEach((nextBath) => {
-      if (this.baths[nextBath].getStatus() === BathStatus.Free) {
-        return nextBath;
+    for (let i = 0; i < bath.nextBaths.length; i++) {
+      if (this.baths[bath.nextBaths[i]].getStatus() === BathStatus.Free) {
+        return this.baths[bath.nextBaths[i]];
       }
-    });
+    }
     return undefined;
   }
 }

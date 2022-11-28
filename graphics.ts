@@ -54,7 +54,7 @@ export class GraphicMotor {
     },
   };
 
-  private readonly lenghts = {
+  private readonly lengths = {
     white1: 2, // Initial whitespace
     bathName: 30, // Bath name placeholder
     sep1: 3, // Separator |
@@ -126,9 +126,9 @@ export class GraphicMotor {
     for (
       var i = 0;
       i <
-      this.lenghts.bathName -
+      this.lengths.bathName -
         this.graphics.bath.label.length +
-        this.lenghts.white1;
+        this.lengths.white1;
       i++
     ) {
       this.rendering += this.graphics.whitespace;
@@ -139,10 +139,10 @@ export class GraphicMotor {
     for (
       var i = 0;
       i <
-      this.lenghts.sep2 +
-        this.lenghts.bathVis +
-        this.lenghts.white2 +
-        (this.lenghts.bathID - this.graphics.id.label.length);
+      this.lengths.sep2 +
+        this.lengths.bathVis +
+        this.lengths.white2 +
+        (this.lengths.bathID - this.graphics.id.label.length);
       i++
     ) {
       this.rendering += this.graphics.whitespace;
@@ -151,8 +151,8 @@ export class GraphicMotor {
     for (
       var i = 0;
       i <
-      this.lenghts.white3 +
-        (this.lenghts.crane - this.graphics.crane.label.length);
+      this.lengths.white3 +
+        (this.lengths.crane - this.graphics.crane.label.length);
       i++
     ) {
       this.rendering += this.graphics.whitespace;
@@ -160,7 +160,7 @@ export class GraphicMotor {
     this.rendering += this.graphics.time.label;
     for (
       var i = 0;
-      i < this.lenghts.time - this.graphics.time.label.length;
+      i < this.lengths.time - this.graphics.time.label.length;
       i++
     ) {
       this.rendering += this.graphics.whitespace;
@@ -168,12 +168,12 @@ export class GraphicMotor {
     this.rendering += this.graphics.auftrag.label;
     for (
       var i = 0;
-      i < this.lenghts.auftrag - this.graphics.auftrag.label.length;
+      i < this.lengths.auftrag - this.graphics.auftrag.label.length;
       i++
     ) {
       this.rendering += this.graphics.whitespace;
     }
-    for (var i = 0; i < this.lenghts.sep4; i++) {
+    for (var i = 0; i < this.lengths.sep4; i++) {
       this.rendering += this.graphics.whitespace;
     }
     // End of line
@@ -183,39 +183,39 @@ export class GraphicMotor {
     for (
       var i = 0;
       i <
-      this.lenghts.white1 +
-        this.lenghts.bathName +
-        this.lenghts.sep1 +
-        this.lenghts.bathID +
-        this.lenghts.sep2;
+      this.lengths.white1 +
+        this.lengths.bathName +
+        this.lengths.sep1 +
+        this.lengths.bathID +
+        this.lengths.sep2;
       i++
     ) {
       this.rendering += this.graphics.whitespace;
     }
     this.rendering += this.graphics.bath.top;
     // Whitespace
-    for (var i = 0; i < this.lenghts.white2; i++) {
+    for (var i = 0; i < this.lengths.white2; i++) {
       this.rendering += this.graphics.whitespace;
     }
     // Crane
     if (crane.position === 1) {
       this.rendering += this.graphics.crane.top;
-      for (var i = 0; i < this.lenghts.white3; i++) {
+      for (var i = 0; i < this.lengths.white3; i++) {
         this.rendering += this.graphics.whitespace;
       }
     } else {
-      for (var i = 0; i < this.lenghts.crane + this.lenghts.white3; i++) {
+      for (var i = 0; i < this.lengths.crane + this.lengths.white3; i++) {
         this.rendering += this.graphics.whitespace;
       }
     }
-    for (var i = 0; i < this.lenghts.time; i++) {
+    for (var i = 0; i < this.lengths.time; i++) {
       this.rendering += this.graphics.whitespace;
     }
     // Auftrag
-    for (var i = 0; i < this.lenghts.auftrag; i++) {
+    for (var i = 0; i < this.lengths.auftrag; i++) {
       this.rendering += this.graphics.whitespace;
     }
-    for (var i = 0; i < this.lenghts.sep4; i++) {
+    for (var i = 0; i < this.lengths.sep4; i++) {
       this.rendering += this.graphics.whitespace;
     }
     this.rendering += this.graphics.eol;
@@ -226,21 +226,21 @@ export class GraphicMotor {
        * LINE 1/2
        * * * * * * */
       // Whitespace
-      for (var i = 0; i < this.lenghts.white1; i++) {
+      for (var i = 0; i < this.lengths.white1; i++) {
         this.rendering += this.graphics.whitespace;
       }
       // Name of the bath
       if (typeof baths[bathID].name !== 'undefined') {
         for (
           var i = 0;
-          i < this.lenghts.bathName - baths[bathID].name.length;
+          i < this.lengths.bathName - baths[bathID].name.length;
           i++
         ) {
           this.rendering += this.graphics.whitespace;
         }
         this.rendering += baths[bathID].name;
       } else {
-        for (var i = 0; i < this.lenghts.bathName; i++) {
+        for (var i = 0; i < this.lengths.bathName; i++) {
           this.rendering += this.graphics.whitespace;
         }
       }
@@ -248,7 +248,7 @@ export class GraphicMotor {
       if (typeof baths[bathID].name !== 'undefined') {
         this.rendering += this.graphics.separator;
       } else {
-        for (var i = 0; i < this.lenghts.sep1; i++) {
+        for (var i = 0; i < this.lengths.sep1; i++) {
           this.rendering += this.graphics.whitespace;
         }
       }
@@ -267,7 +267,7 @@ export class GraphicMotor {
         this.rendering += this.graphics.bath.middle.empty;
       }
       // Whitespace
-      for (var i = 0; i < this.lenghts.white2; i++) {
+      for (var i = 0; i < this.lengths.white2; i++) {
         this.rendering += this.graphics.whitespace;
       }
       // Crane
@@ -277,11 +277,11 @@ export class GraphicMotor {
         } else {
           this.rendering += this.graphics.crane.middle.empty;
         }
-        for (var i = 0; i < this.lenghts.white3; i++) {
+        for (var i = 0; i < this.lengths.white3; i++) {
           this.rendering += this.graphics.whitespace;
         }
       } else {
-        for (var i = 0; i < this.lenghts.crane + this.lenghts.white3; i++) {
+        for (var i = 0; i < this.lengths.crane + this.lengths.white3; i++) {
           this.rendering += this.graphics.whitespace;
         }
       }
@@ -291,32 +291,32 @@ export class GraphicMotor {
         this.rendering += timeRemaining;
         for (
           var i = 0;
-          i < this.lenghts.time - timeRemaining.toString.length;
+          i < this.lengths.time - timeRemaining.toString.length;
           i++
         ) {
           this.rendering += this.graphics.whitespace;
         }
       } else {
-        for (var i = 0; i < this.lenghts.time; i++) {
+        for (var i = 0; i < this.lengths.time; i++) {
           this.rendering += this.graphics.whitespace;
         }
       }
       // Auftrag
       if (typeof baths[bathID].auftrag !== 'undefined') {
-        this.rendering += baths[bathID].auftrag.number.length;
+        this.rendering += baths[bathID].auftrag.number;
         for (
           var i = 0;
-          i < this.lenghts.auftrag - baths[bathID].auftrag.number.length;
+          i < this.lengths.auftrag - baths[bathID].auftrag.number.length;
           i++
         ) {
           this.rendering += this.graphics.whitespace;
         }
       } else {
-        for (var i = 0; i < this.lenghts.auftrag; i++) {
+        for (var i = 0; i < this.lengths.auftrag; i++) {
           this.rendering += this.graphics.whitespace;
         }
       }
-      for (var i = 0; i < this.lenghts.sep4; i++) {
+      for (var i = 0; i < this.lengths.sep4; i++) {
         this.rendering += this.graphics.whitespace;
       }
       this.rendering += this.graphics.eol;
@@ -326,11 +326,11 @@ export class GraphicMotor {
       for (
         var i = 0;
         i <
-        this.lenghts.white1 +
-          this.lenghts.bathName +
-          this.lenghts.sep1 +
-          this.lenghts.bathID +
-          this.lenghts.sep2;
+        this.lengths.white1 +
+          this.lengths.bathName +
+          this.lengths.sep1 +
+          this.lengths.bathID +
+          this.lengths.sep2;
         i++
       ) {
         this.rendering += this.graphics.whitespace;
@@ -338,34 +338,34 @@ export class GraphicMotor {
       // Bath
       this.rendering += this.graphics.bath.bottom;
       // Whitespace
-      for (var i = 0; i < this.lenghts.white2; i++) {
+      for (var i = 0; i < this.lengths.white2; i++) {
         this.rendering += this.graphics.whitespace;
       }
       // Crane
       if (crane.position === bathID) {
         this.rendering += this.graphics.crane.bottom;
-        for (var i = 0; i < this.lenghts.white3; i++) {
+        for (var i = 0; i < this.lengths.white3; i++) {
           this.rendering += this.graphics.whitespace;
         }
       } else if (crane.position === bathID + 1) {
         this.rendering += this.graphics.crane.top;
-        for (var i = 0; i < this.lenghts.white3; i++) {
+        for (var i = 0; i < this.lengths.white3; i++) {
           this.rendering += this.graphics.whitespace;
         }
       } else {
-        for (var i = 0; i < this.lenghts.crane + this.lenghts.white3; i++) {
+        for (var i = 0; i < this.lengths.crane + this.lengths.white3; i++) {
           this.rendering += this.graphics.whitespace;
         }
       }
       // Time
-      for (var i = 0; i < this.lenghts.time; i++) {
+      for (var i = 0; i < this.lengths.time; i++) {
         this.rendering += this.graphics.whitespace;
       }
       // Auftrag
-      for (var i = 0; i < this.lenghts.auftrag; i++) {
+      for (var i = 0; i < this.lengths.auftrag; i++) {
         this.rendering += this.graphics.whitespace;
       }
-      for (var i = 0; i < this.lenghts.sep4; i++) {
+      for (var i = 0; i < this.lengths.sep4; i++) {
         this.rendering += this.graphics.whitespace;
       }
       this.rendering += this.graphics.eol;

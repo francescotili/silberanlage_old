@@ -271,7 +271,7 @@ export const bathsInitData: BathSettings[] = [
     name: 'Abladestation',
     type: BathType.LoadingStation,
     is_enabled: true,
-    nextBaths: [3, 27, 28, 29],
+    nextBaths: [3],
   },
 ];
 
@@ -280,8 +280,8 @@ export const plantSettings = {
   CuCurrent: 100, // Ampere
   craneStartingPosition: 31,
   simulation: {
-    speed: 60, // 1 is realtime, 10 is 10x and so on
-    maxTime: 300, // in seconds, when to end simulation
+    speed: 30, // 1 is realtime, 10 is 10x and so on
+    maxTime: 900, // in seconds, when to end simulation
     sampleTime: 1,
   },
 };
