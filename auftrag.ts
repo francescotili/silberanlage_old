@@ -71,7 +71,9 @@ export class Auftrag {
       switch (bathType) {
         case BathType.Copper: {
           // TODO
-          console.warn('Kupfer Laufzeitberechnung noch nicht implementiert');
+          console.warn(
+            '[Auftrag:getWorkTime] Calculation of copper working time not implemented'
+          );
           return 0;
         }
         case BathType.Silver: {
@@ -109,22 +111,31 @@ export class Auftrag {
         }
         case BathType.Parkplatz:
         default: {
+          console.warn(
+            '[Auftrag:getWorkTime] Function called with an unhandled bathType'
+          );
           return 604800; // Infinite time (1 week)
         }
       }
     } else {
-      console.error(
-        'Fehler in getWorkTime für Auftrag: kein BathType vorhanden!'
+      console.warn(
+        '[Auftrag:getWorkTime] Function called with an undefined bathType'
       );
       return 0;
     }
   }
 
   public setStatus(status: AuftragStatus): void {
+    console.log(
+      `[Auftrag:setStatus] New status for Auftrag ${this.number}: ${AuftragStatus[status]}`
+    );
     this.status = status;
   }
 
   public getStatus(): AuftragStatus {
+    console.log(
+      `[Auftrag:setStatus] Auftrag ${this.number} has status: ${this.status}`
+    );
     return this.status;
   }
 }

@@ -49,14 +49,24 @@ export class Crane {
         break;
       }
       case CraneWorkingPhase.Moving: {
-        this.position = Math.floor(
-          this.remainingTime /
+        this.position = Math.round(
+          (this.phases[0].time - this.remainingTime) /
             (this.phases[0].time /
               (this.phases[0].destination - this.phases[0].origin)) +
             this.phases[0].origin
         );
+        break;
       }
       case undefined: {
+        console.warn(
+          `[Crane:updatePosition] Was called but Crane status is undefined`
+        );
+        break;
+      }
+      default: {
+        console.warn(
+          `[Crane:updatePosition] Was called, but the Crane is in an unhandled phase: ${this.getPhase()}`
+        );
         break;
       }
     }
@@ -66,11 +76,15 @@ export class Crane {
     if (this.phases.length > 0) {
       return this.phases[0].phase;
     } else {
+      console.log(`[Crane:getPhase] The crane phase is undefined`);
       return undefined;
     }
   }
 
   public setStatus(status: CraneStatus, phases?: CraneOperation[]): void {
+    console.log(
+      `[Crane:setStatus] New status requested for the crane: ${CraneStatus[status]}`
+    );
     this.status = status;
     switch (this.status) {
       case CraneStatus.Waiting: {
@@ -86,12 +100,15 @@ export class Crane {
           });
         } else {
           console.error(
-            "Der Krane wurde auf 'Working' eingesetzt, aber keine Operation wurde gesendet"
+            `[Crane:setStatus] The crane was set to "Working" but no Operation was passed!`
           );
         }
         break;
       }
       default: {
+        console.error(
+          `[Crane:setStatus] An unhandled craneStatus (${status}) was passed to the crane`
+        );
         break;
       }
     }

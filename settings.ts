@@ -280,7 +280,7 @@ export const plantSettings = {
   CuCurrent: 100, // Ampere
   craneStartingPosition: 31,
   simulation: {
-    speed: 30, // 1 is realtime, 10 is 10x and so on
+    speed: 10, // 1 is realtime, 10 is 10x and so on
     maxTime: 900, // in seconds, when to end simulation
     sampleTime: 1,
   },

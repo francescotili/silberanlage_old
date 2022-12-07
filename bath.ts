@@ -76,6 +76,10 @@ export class Bath {
   public updateTime(sampleTime: number): void {
     if (typeof this.remainingTime !== 'undefined') {
       this.remainingTime -= sampleTime;
+    } else {
+      console.warn(
+        `[Bath::updateTime] Update for bath ${this.id} requested, but time is undefined!`
+      );
     }
   }
 
@@ -84,6 +88,9 @@ export class Bath {
   }
 
   public setStatus(status: BathStatus, auftrag?: Auftrag) {
+    console.log(
+      `[Bath:setStatus] New status requested for bath ${this.id}: ${BathStatus[status]}`
+    );
     this.status = status;
     switch (this.status) {
       case BathStatus.Free: {
@@ -101,12 +108,15 @@ export class Bath {
           this.remainingTime = auftrag.getWorkTime(this.type);
         } else {
           console.error(
-            'Fehler in Bad ' + this.id + ': kein Auftrag vorhanden!'
+            `[Bath:setStatus] Bath ${this.id} was set on "Working" without passing Auftrag data!`
           );
         }
         break;
       }
       default: {
+        console.error(
+          `[Bath:setStatus] An unhandled bathStatus (${status}) was passed to bath {${this.id}}`
+        );
         break;
       }
     }

@@ -113,7 +113,7 @@ export class SilberAnlage {
 
   private appendOperation(bathId: number) {
     this.bathsWaiting.push(bathId);
-    console.log('Bad nr. ' + bathId + ' hat der Krane angerufen');
+    console.log(`[Plant:appendOperation] Bath ${bathId} has called the crane`);
   }
 
   public updateCrane(sampleTime: number) {
@@ -122,47 +122,66 @@ export class SilberAnlage {
         this.crane.updateTime(sampleTime);
 
         if (this.crane.remainingTime <= 0) {
-          switch (this.crane.phases.length) {
-            case 0: {
-              console.error(
-                "Krane ist in 'Working' zustand, aber Phases ist undefined"
-              );
-              break;
-            }
-            case 1: {
-              // Last phase ended
-              // Transfer auftrag as needed
-              if (this.crane.phases[0].transferAuftrag) {
-                if (
-                  typeof this.baths[this.crane.position].auftrag !== 'undefined'
-                ) {
-                  this.crane.auftrag = this.baths[this.crane.position].auftrag;
-                  this.baths[this.crane.position].auftrag = undefined;
-                } else if (typeof this.crane.auftrag !== 'undefined') {
-                  this.baths[this.crane.position].auftrag = this.crane.auftrag;
-                  this.crane.auftrag = undefined;
-                }
-              }
-              this.crane.phases.splice(0, 1); // Remove current elapsed operation
-              this.crane.remainingTime = 0;
-              this.crane.setStatus(CraneStatus.Waiting);
-            }
-            default: {
-              // More than 1 cranephase
-              if (this.crane.phases[0].transferAuftrag) {
-                this.baths[this.crane.position].auftrag = this.crane.auftrag;
+          console.log('[Plant:updateCrane] Crane phase ended');
+
+          if (this.crane.phases.length >= 1) {
+            // Transfer auftrag if needed
+            if (this.crane.phases[0].transferAuftrag) {
+              if (
+                typeof this.baths[this.crane.position].auftrag !== 'undefined'
+              ) {
+                console.log(
+                  `[Plant:updateCrane] Auftrag ${
+                    this.baths[this.crane.position].auftrag
+                  } transfer: Bath -> Crane`
+                );
+                this.crane.auftrag = this.baths[this.crane.position].auftrag;
+                this.baths[this.crane.position].setStatus(BathStatus.Free);
+                this.auftrags.forEach((auftrag) => {
+                  if (auftrag.number === this.crane.auftrag.number) {
+                    auftrag.setStatus(AuftragStatus.Moving);
+                  }
+                });
+              } else if (typeof this.crane.auftrag !== 'undefined') {
+                console.log(
+                  `[Plant:updateCrane] Auftrag ${this.crane.auftrag} transfer: Crane -> Bath`
+                );
+                this.baths[this.crane.position].setStatus(
+                  BathStatus.Working,
+                  this.crane.auftrag
+                );
+                this.auftrags.forEach((auftrag) => {
+                  if (
+                    auftrag.number ===
+                    this.baths[this.crane.position].auftrag.number
+                  ) {
+                    auftrag.setStatus(AuftragStatus.Working);
+                  }
+                });
                 this.crane.auftrag = undefined;
               }
-              this.crane.phases.splice(0, 1); // Remove current elapsed operation
+            }
+
+            // Assign next operation if present
+            this.crane.phases.splice(0, 1); // Remove current elapsed operation
+            if (this.crane.phases.length === 1) {
+              this.crane.remainingTime = 0;
+              this.crane.setStatus(CraneStatus.Waiting);
+            } else {
               this.crane.remainingTime = this.crane.phases[0].time;
             }
+          } else {
+            console.error(
+              `[Plant:updateCrane] Crane is in "Working" status, but Phase queue is 0!`
+            );
           }
         }
         break;
       }
       case CraneStatus.Waiting: {
         if (this.bathsWaiting.length > 0) {
-          // FIFO Logic
+          console.log(`[Plant:updateCrane] The crane starts a new operation`);
+          // FIFS First In First Served Logic
           // Find a free destination bath
           let originBath: Bath;
           let destinationBath: Bath;
@@ -172,8 +191,6 @@ export class SilberAnlage {
             destinationBath = this.findDestinationBath(originBath);
             if (typeof destinationBath !== 'undefined') {
               // Found a destination bath that is free
-              this.crane.setStatus(CraneStatus.Working);
-
               // Initialize operation's phases data
               let phases: CraneOperation[] = [];
 
