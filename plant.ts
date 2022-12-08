@@ -131,14 +131,20 @@ export class SilberAnlage {
           }
           break;
         }
-        case BathStatus.Free: {
-          /*if (bath.type === BathType.LoadingStation) {
+        case BathStatus.Waiting: {
+          if (
+            bath.type === BathType.LoadingStation &&
+            typeof bath.drum !== 'undefined'
+          ) {
+            // The loading station has an empty Drum
             this.auftrags[0].setStatus(AuftragStatus.Loading);
-            bath.setStatus(BathStatus.Working, this.auftrags[0]);
-          }          
-          */
+            bath.drum.loadParts(this.auftrags[0]);
+            bath.setStatus(BathStatus.Working)
+            this.auftrags.splice(0, 1); // Remove auftrag from the waiting list
+          }
+          break;
         }
-        case BathStatus.Waiting:
+        case BathStatus.Free:
         default: {
           break;
         }

@@ -106,11 +106,9 @@ export class Bath {
       case BathStatus.Working: {
         if (typeof drum !== 'undefined') {
           this.drum = drum;
-          this.remainingTime = drum.auftrag.getWorkTime(this.type);
+          this.remainingTime = drum.getAuftrag().getWorkTime(this.type);
         } else {
-          console.error(
-            `[Bath:setStatus] Bath ${this.id} was set on "Working" without passing Auftrag data!`
-          );
+          this.remainingTime = this.drum.getAuftrag().getWorkTime(this.type);
         }
         break;
       }

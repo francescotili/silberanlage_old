@@ -222,7 +222,7 @@ export const bathsInitData: BathSettings[] = [
   },
   {
     // Bad 18
-    name: 'Standspüle',
+    name: 'Fließspüle',
     type: BathType.RinseFlow,
     is_enabled: true,
     nextBaths: [20, 21],

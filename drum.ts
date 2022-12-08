@@ -17,8 +17,8 @@ enum DrumStatus {
 
 export class Drum {
   readonly number: number;
-  status: DrumStatus;
-  auftrag: Auftrag | undefined;
+  private status: DrumStatus;
+  private auftrag: Auftrag | undefined;
 
   constructor(number: number) {
     this.number = number;
@@ -31,5 +31,19 @@ export class Drum {
 
   public getStatus(): DrumStatus {
     return this.status;
+  }
+
+  public loadParts(auftrag: Auftrag): void {
+    this.auftrag = auftrag;
+    this.status = DrumStatus.Full;
+  }
+
+  public getAuftrag(): Auftrag {
+    return this.auftrag;
+  }
+
+  public unloadParts(): void {
+    this.auftrag = undefined;
+    this.status = DrumStatus.Empty;
   }
 }
