@@ -1,4 +1,4 @@
-import { Auftrag } from './auftrag';
+import { Drum } from './drum';
 import { plantSettings, defaultCraneTimes } from './settings';
 
 enum CraneStatus {
@@ -18,14 +18,14 @@ export interface CraneOperation {
   destination?: number;
   time: number;
   phase: CraneWorkingPhase;
-  transferAuftrag: boolean;
+  transferDrum: boolean;
   // priority: Priority
 }
 
 export class Crane {
   public position: number;
   private status: CraneStatus;
-  auftrag: Auftrag | undefined;
+  drum: Drum | undefined;
   remainingTime: number | undefined;
   phases: CraneOperation[];
   currentPhase: CraneWorkingPhase | undefined;

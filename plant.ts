@@ -1,7 +1,13 @@
 import { Auftrag, AuftragSettings } from './auftrag';
 import { Bath, BathSettings } from './bath';
 import { Crane } from './crane';
-import { defaultCraneTimes } from './settings';
+import { Drum } from './drum';
+import { defaultCraneTimes, drumsInitData } from './settings';
+
+enum Scheduler {
+  FCFS,
+  FCFSPrio,
+}
 
 enum BathStatus {
   Free,
@@ -46,7 +52,7 @@ export interface CraneOperation {
   destination?: number;
   time: number;
   phase: CraneWorkingPhase;
-  transferAuftrag: boolean;
+  transferDrum: boolean;
   // priority: Priority
 }
 
@@ -54,6 +60,7 @@ export class SilberAnlage {
   baths: Bath[];
   crane: Crane;
   auftrags: Auftrag[];
+  drums: Drum[];
   private bathsWaiting: number[];
 
   /*
@@ -68,18 +75,45 @@ export class SilberAnlage {
       this.baths.push(new Bath(+i, bathsInitData[i]));
     }
     this.bathsWaiting = [];
-    console.log('Bäder inisialisiert');
+    console.log('[Plant:constructor] Baths created');
 
     // Initialize Crane
     this.crane = new Crane();
-    console.log('Crane erstellt');
+    console.log('[Plant:constructor] Crane initialized');
+
+    // Intialize Drums
+    this.drums = [];
+    for (var i in drumsInitData) {
+      this.drums.push(new Drum(drumsInitData[i].number));
+    }
+    this.drums.forEach((drum) => {
+      for (let i = 0; i < this.baths.length; i++) {
+        switch (this.baths[i].type) {
+          case BathType.LoadingStation:
+          case BathType.RinseFlow:
+          case BathType.Parkplatz: {
+            if (typeof this.baths[i].drum === 'undefined') {
+              // Assign a Drum to the Loading Station, if possible
+              this.assignDrum(this.baths[i], drum);
+            }
+            break;
+          }
+        }
+      }
+    });
+    console.log('[Plant:constructor] Drum assigned');
 
     // Load Auftrags
     this.auftrags = [];
     auftragsData.forEach((auftrag) => {
       this.auftrags.push(new Auftrag(auftrag));
     });
-    console.log('Aufträge geladen');
+    console.log('[Plant:constructor] Aufträge loaded');
+  }
+
+  private assignDrum(bath: Bath, drum: Drum): void {
+    bath.drum = drum;
+    bath.setStatus(BathStatus.Waiting);
   }
 
   public updateBaths(sampleTime: number) {
@@ -98,10 +132,11 @@ export class SilberAnlage {
           break;
         }
         case BathStatus.Free: {
-          if (bath.type === BathType.LoadingStation) {
+          /*if (bath.type === BathType.LoadingStation) {
             this.auftrags[0].setStatus(AuftragStatus.Loading);
             bath.setStatus(BathStatus.Working, this.auftrags[0]);
-          }
+          }          
+          */
         }
         case BathStatus.Waiting:
         default: {
@@ -116,34 +151,36 @@ export class SilberAnlage {
     console.log(`[Plant:appendOperation] Bath ${bathId} has called the crane`);
   }
 
-  private transferAuftrag(): void {
-    if (typeof this.baths[this.crane.position].auftrag !== 'undefined') {
+  private transferDrum(): void {
+    if (typeof this.baths[this.crane.position].drum !== 'undefined') {
       console.log(
-        `[Plant:updateCrane] Auftrag ${
-          this.baths[this.crane.position].auftrag.number
+        `[Plant:updateCrane] Drum ${
+          this.baths[this.crane.position].drum.number
         } transfer: Bath ${this.crane.position} -> Crane`
       );
-      this.crane.auftrag = this.baths[this.crane.position].auftrag;
+      this.crane.drum = this.baths[this.crane.position].drum;
       this.baths[this.crane.position].setStatus(BathStatus.Free);
       this.auftrags.forEach((auftrag) => {
-        if (auftrag.number === this.crane.auftrag.number) {
+        if (auftrag.number === this.crane.drum.auftrag.number) {
           auftrag.setStatus(AuftragStatus.Moving);
         }
       });
-    } else if (typeof this.crane.auftrag !== 'undefined') {
+    } else if (typeof this.crane.drum !== 'undefined') {
       console.log(
-        `[Plant:updateCrane] Auftrag ${this.crane.auftrag.number} transfer: Crane -> Bath`
+        `[Plant:updateCrane] Auftrag ${this.crane.drum.number} transfer: Crane -> Bath`
       );
       this.baths[this.crane.position].setStatus(
         BathStatus.Working,
-        this.crane.auftrag
+        this.crane.drum
       );
       this.auftrags.forEach((auftrag) => {
-        if (auftrag.number === this.baths[this.crane.position].auftrag.number) {
+        if (
+          auftrag.number === this.baths[this.crane.position].drum.auftrag.number
+        ) {
           auftrag.setStatus(AuftragStatus.Working);
         }
       });
-      this.crane.auftrag = undefined;
+      this.crane.drum = undefined;
     }
   }
 
@@ -153,7 +190,9 @@ export class SilberAnlage {
         this.crane.updateTime(sampleTime);
 
         if (this.crane.remainingTime <= 0) {
-          this.transferAuftrag();
+          if (this.crane.phases[0].transferDrum) {
+            this.transferDrum();
+          }
           if (typeof this.crane.currentPhase !== 'undefined') {
             // Crane already in an operation, move to next phase
             this.crane.nextPhase();
@@ -165,87 +204,104 @@ export class SilberAnlage {
       }
       case CraneStatus.Waiting: {
         if (this.bathsWaiting.length > 0) {
-          console.log(`[Plant:updateCrane] The crane starts a new operation`);
-          // FIFS First In First Served Logic
-          // Find a free destination bath
-          let originBath: Bath;
-          let destinationBath: Bath;
-          for (let i = 0; i < this.bathsWaiting.length; i++) {
-            // Determine origin and destination bath
-            originBath = this.baths[this.bathsWaiting[i]];
-            destinationBath = this.findDestinationBath(originBath);
-            if (typeof destinationBath !== 'undefined') {
-              // Found a destination bath that is free
-              // Initialize operation's phases data
-              let phases: CraneOperation[] = [];
+          this.scheduleOperation(Scheduler.FCFS);
+        }
+        break;
+      }
+    }
+  }
 
-              // Time to move from current crane position to origin position
-              let tempTime = this.crane.calculateMovingTime(
-                this.crane.position - originBath.id
-              );
-              if (tempTime > 0) {
-                phases.push({
-                  origin: this.crane.position,
-                  destination: originBath.id,
-                  phase: CraneWorkingPhase.Moving,
-                  time: tempTime,
-                  transferAuftrag: false,
-                });
-              }
+  private scheduleOperation(scheduler: Scheduler): void {
+    switch (scheduler) {
+      case Scheduler.FCFS: {
+        // FIFS First In First Served Logic
 
-              // Time to drain
-              if (typeof originBath.drainTime !== 'undefined') {
-                phases.push({
-                  origin: originBath.id,
-                  phase: CraneWorkingPhase.Draining,
-                  time: originBath.drainTime,
-                  transferAuftrag: true,
-                });
-              } else {
-                phases.push({
-                  origin: originBath.id,
-                  phase: CraneWorkingPhase.Draining,
-                  time: defaultCraneTimes.drain,
-                  transferAuftrag: true,
-                });
-              }
+        // Find a free destination bath
+        let originBath: Bath;
+        let destinationBath: Bath;
+        for (let i = 0; i < this.bathsWaiting.length; i++) {
+          // Determine origin and destination bath
+          originBath = this.baths[this.bathsWaiting[i]];
+          destinationBath = this.findDestinationBath(originBath);
+          if (typeof destinationBath !== 'undefined') {
+            // Found a destination bath that is free
 
-              // Time to pickup
+            // Initialize operation's phases data
+            let phases: CraneOperation[] = [];
+
+            // Time to move from current crane position to origin position
+            let tempTime = this.crane.calculateMovingTime(
+              this.crane.position - originBath.id
+            );
+            if (tempTime > 0) {
+              phases.push({
+                origin: this.crane.position,
+                destination: originBath.id,
+                phase: CraneWorkingPhase.Moving,
+                time: tempTime,
+                transferDrum: false,
+              });
+            }
+
+            // Time to drain
+            if (typeof originBath.drainTime !== 'undefined') {
               phases.push({
                 origin: originBath.id,
-                phase: CraneWorkingPhase.Picking,
-                time: defaultCraneTimes.pick,
-                transferAuftrag: false,
+                phase: CraneWorkingPhase.Draining,
+                time: originBath.drainTime,
+                transferDrum: true,
               });
-
-              // Time to move from origin to destination position
-              tempTime = this.crane.calculateMovingTime(
-                originBath.id - destinationBath.id
-              );
-              if (tempTime > 0) {
-                phases.push({
-                  origin: originBath.id,
-                  destination: destinationBath.id,
-                  phase: CraneWorkingPhase.Moving,
-                  time: tempTime,
-                  transferAuftrag: false,
-                });
-              }
-
-              // Time to drop
+            } else {
               phases.push({
-                origin: destinationBath.id,
-                phase: CraneWorkingPhase.Dropping,
-                time: defaultCraneTimes.drop,
-                transferAuftrag: true,
+                origin: originBath.id,
+                phase: CraneWorkingPhase.Draining,
+                time: defaultCraneTimes.drain,
+                transferDrum: true,
               });
-
-              // Send operation to crane
-              this.crane.setStatus(CraneStatus.Working, phases);
-              break; // Break loop
             }
+
+            // Time to pickup
+            phases.push({
+              origin: originBath.id,
+              phase: CraneWorkingPhase.Picking,
+              time: defaultCraneTimes.pick,
+              transferDrum: false,
+            });
+
+            // Time to move from origin to destination position
+            tempTime = this.crane.calculateMovingTime(
+              originBath.id - destinationBath.id
+            );
+            if (tempTime > 0) {
+              phases.push({
+                origin: originBath.id,
+                destination: destinationBath.id,
+                phase: CraneWorkingPhase.Moving,
+                time: tempTime,
+                transferDrum: false,
+              });
+            }
+
+            // Time to drop
+            phases.push({
+              origin: destinationBath.id,
+              phase: CraneWorkingPhase.Dropping,
+              time: defaultCraneTimes.drop,
+              transferDrum: true,
+            });
+
+            // Send operation to crane
+            console.log(`[Plant:updateCrane] The crane starts a new operation`);
+            this.crane.setStatus(CraneStatus.Working, phases);
+            break;
           }
         }
+        break;
+      }
+      default: {
+        console.error(
+          `[Plant:scheduleOperation] Unhandled Scheduler specified!`
+        );
         break;
       }
     }

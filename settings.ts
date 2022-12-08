@@ -1,5 +1,6 @@
 import { AuftragSettings } from './auftrag';
 import { BathSettings, WorkTime } from './bath';
+import { DrumSettings } from './drum';
 
 enum BathType {
   PreTreatment,
@@ -78,6 +79,33 @@ export const defaultCraneTimes = {
     contiguous: 5, // Zeit wenn Destination- und Ursprungbad sind einer nach einander
   },
 };
+
+export const drumsInitData: DrumSettings[] = [
+  {
+    number: 1,
+  },
+  {
+    number: 2,
+  },
+  {
+    number: 3,
+  },
+  {
+    number: 4,
+  },
+  {
+    number: 5,
+  },
+  {
+    number: 6,
+  },
+  {
+    number: 7,
+  },
+  {
+    number: 8,
+  },
+];
 
 /*
  * Hier müssen alle die Bäder spezifiziert werden

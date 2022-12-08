@@ -1,4 +1,5 @@
 import { Auftrag } from './auftrag';
+import { Drum } from './drum';
 import { defaultCraneTimes } from './settings';
 
 export interface BathSettings {
@@ -47,7 +48,7 @@ export class Bath {
 
   private status: BathStatus;
   private remainingTime: number | undefined;
-  public auftrag: Auftrag;
+  public drum: Drum | undefined;
   public nextBaths: number[];
 
   //private tempDrainTime: number;
@@ -87,7 +88,7 @@ export class Bath {
     return this.remainingTime;
   }
 
-  public setStatus(status: BathStatus, auftrag?: Auftrag) {
+  public setStatus(status: BathStatus, drum?: Drum) {
     console.log(
       `[Bath:setStatus] New status requested for bath ${this.id}: ${BathStatus[status]}`
     );
@@ -95,7 +96,7 @@ export class Bath {
     switch (this.status) {
       case BathStatus.Free: {
         this.remainingTime = undefined;
-        this.auftrag = undefined;
+        this.drum = undefined;
         break;
       }
       case BathStatus.Waiting: {
@@ -103,9 +104,9 @@ export class Bath {
         break;
       }
       case BathStatus.Working: {
-        if (typeof auftrag !== 'undefined') {
-          this.auftrag = auftrag;
-          this.remainingTime = auftrag.getWorkTime(this.type);
+        if (typeof drum !== 'undefined') {
+          this.drum = drum;
+          this.remainingTime = drum.auftrag.getWorkTime(this.type);
         } else {
           console.error(
             `[Bath:setStatus] Bath ${this.id} was set on "Working" without passing Auftrag data!`

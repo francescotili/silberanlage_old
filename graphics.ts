@@ -1,12 +1,6 @@
 import { Bath } from './bath';
 import { Crane } from './crane';
 
-enum BathStatus {
-  Free,
-  Waiting,
-  Working,
-}
-
 enum CraneStatus {
   Waiting,
   Working,
@@ -26,7 +20,8 @@ export class GraphicMotor {
       label: 'Bad',
       top: '&#9487;&#9473;&#9473;&#9491;',
       middle: {
-        full: '&#9475;&#9608;&#9608;&#9475;',
+        fullFull: '&#9475;&#9608;&#9608;&#9475;',
+        fullEmpty: '&#9475;[]&#9475;',
         empty: '&#9475;&nbsp;&nbsp;&#9475;',
         disabled: '&#9475;&#9587;&#9587;&#9475;',
       },
@@ -259,12 +254,18 @@ export class GraphicMotor {
       // Indicator
       this.rendering += this.graphics.indicator;
       // Bath status
-      if (baths[bathID].getStatus() !== BathStatus.Free) {
-        this.rendering += this.graphics.bath.middle.full;
-      } else if (baths[bathID].is_enabled === false) {
-        this.rendering += this.graphics.bath.middle.disabled;
+      if (typeof baths[bathID].drum !== 'undefined') {
+        if (typeof baths[bathID].drum.auftrag !== 'undefined') {
+          this.rendering += this.graphics.bath.middle.fullFull;
+        } else {
+          this.rendering += this.graphics.bath.middle.fullEmpty;
+        }
       } else {
-        this.rendering += this.graphics.bath.middle.empty;
+        if (baths[bathID].is_enabled === false) {
+          this.rendering += this.graphics.bath.middle.disabled;
+        } else {
+          this.rendering += this.graphics.bath.middle.empty;
+        }
       }
       // Whitespace
       for (var i = 0; i < this.lengths.white2; i++) {
@@ -274,7 +275,7 @@ export class GraphicMotor {
       if (crane.position === bathID) {
         if (
           crane.getStatus() !== CraneStatus.Waiting &&
-          typeof crane.auftrag !== 'undefined'
+          typeof crane.drum !== 'undefined'
         ) {
           this.rendering += this.graphics.crane.middle.full;
         } else {
@@ -305,14 +306,16 @@ export class GraphicMotor {
         }
       }
       // Auftrag
-      if (typeof baths[bathID].auftrag !== 'undefined') {
-        this.rendering += baths[bathID].auftrag.number;
-        for (
-          var i = 0;
-          i < this.lengths.auftrag - baths[bathID].auftrag.number.length;
-          i++
-        ) {
-          this.rendering += this.graphics.whitespace;
+      if (typeof baths[bathID].drum !== 'undefined') {
+        if (typeof baths[bathID].drum.auftrag !== 'undefined') {
+          this.rendering += baths[bathID].drum.auftrag.number;
+          for (
+            var i = 0;
+            i < this.lengths.auftrag - baths[bathID].drum.auftrag.number.length;
+            i++
+          ) {
+            this.rendering += this.graphics.whitespace;
+          }
         }
       } else {
         for (var i = 0; i < this.lengths.auftrag; i++) {
