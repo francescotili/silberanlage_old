@@ -86,21 +86,13 @@ export class SilberAnlage {
     for (var i in drumsInitData) {
       this.drums.push(new Drum(drumsInitData[i].number));
     }
-    this.drums.forEach((drum) => {
-      for (let i = 0; i < this.baths.length; i++) {
-        switch (this.baths[i].type) {
-          case BathType.LoadingStation:
-          case BathType.RinseFlow:
-          case BathType.Parkplatz: {
-            if (typeof this.baths[i].drum === 'undefined') {
-              // Assign a Drum to the Loading Station, if possible
-              this.assignDrum(this.baths[i], drum);
-            }
-            break;
-          }
-        }
+    for (var j in this.drums) {
+      let destinationBath: number | undefined;
+      destinationBath = this.searchBathForDrum();
+      if (typeof destinationBath !== 'undefined') {
+        this.assignDrum(this.baths[destinationBath], this.drums[j]);
       }
-    });
+    }
     console.log('[Plant:constructor] Drum assigned');
 
     // Load Auftrags
@@ -111,7 +103,38 @@ export class SilberAnlage {
     console.log('[Plant:constructor] Aufträge loaded');
   }
 
+  private searchBathForDrum(): number | undefined {
+    for (let i = 0; i < this.baths.length; i++) {
+      if (
+        this.baths[i].type === BathType.LoadingStation &&
+        typeof this.baths[i].drum === 'undefined'
+      ) {
+        return i;
+      }
+    }
+    for (let i = 0; i < this.baths.length; i++) {
+      if (
+        this.baths[i].type === BathType.Parkplatz &&
+        typeof this.baths[i].drum === 'undefined'
+      ) {
+        return i;
+      }
+    }
+    for (let i = 0; i < this.baths.length; i++) {
+      if (
+        this.baths[i].type === BathType.RinseFlow &&
+        typeof this.baths[i].drum === 'undefined'
+      ) {
+        return i;
+      }
+    }
+    return undefined;
+  }
+
   private assignDrum(bath: Bath, drum: Drum): void {
+    console.log(
+      `[Plant:assignDrum] Drum ${drum.number} assigned to Bath ${bath.id}`
+    );
     bath.drum = drum;
     bath.setStatus(BathStatus.Waiting);
   }
@@ -121,7 +144,6 @@ export class SilberAnlage {
       switch (bath.getStatus()) {
         case BathStatus.Working: {
           bath.updateTime(sampleTime);
-
           if (bath.getTime() <= 0) {
             // Bath has worked the set time
             bath.setStatus(BathStatus.Waiting);
@@ -139,7 +161,7 @@ export class SilberAnlage {
             // The loading station has an empty Drum
             this.auftrags[0].setStatus(AuftragStatus.Loading);
             bath.drum.loadParts(this.auftrags[0]);
-            bath.setStatus(BathStatus.Working)
+            bath.setStatus(BathStatus.Working);
             this.auftrags.splice(0, 1); // Remove auftrag from the waiting list
           }
           break;
@@ -167,7 +189,7 @@ export class SilberAnlage {
       this.crane.drum = this.baths[this.crane.position].drum;
       this.baths[this.crane.position].setStatus(BathStatus.Free);
       this.auftrags.forEach((auftrag) => {
-        if (auftrag.number === this.crane.drum.auftrag.number) {
+        if (auftrag.number === this.crane.drum.getAuftrag().number) {
           auftrag.setStatus(AuftragStatus.Moving);
         }
       });
@@ -181,7 +203,8 @@ export class SilberAnlage {
       );
       this.auftrags.forEach((auftrag) => {
         if (
-          auftrag.number === this.baths[this.crane.position].drum.auftrag.number
+          auftrag.number ===
+          this.baths[this.crane.position].drum.getAuftrag().number
         ) {
           auftrag.setStatus(AuftragStatus.Working);
         }
