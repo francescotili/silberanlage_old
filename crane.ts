@@ -28,6 +28,7 @@ export class Crane {
   auftrag: Auftrag | undefined;
   remainingTime: number | undefined;
   phases: CraneOperation[];
+  currentPhase: CraneWorkingPhase | undefined;
 
   constructor() {
     this.position = plantSettings.craneStartingPosition;
@@ -37,6 +38,7 @@ export class Crane {
 
   public updateTime(sampleTime: number): void {
     this.remainingTime -= sampleTime;
+    console.log(this.remainingTime);
     this.updatePosition();
   }
 
@@ -89,15 +91,19 @@ export class Crane {
     switch (this.status) {
       case CraneStatus.Waiting: {
         this.remainingTime = 0;
+        this.currentPhase = undefined;
         break;
       }
       case CraneStatus.Working: {
         if (typeof phases !== 'undefined') {
           this.phases = phases;
-          this.remainingTime = 0;
-          this.phases.forEach((phase) => {
-            this.remainingTime += phase.time;
-          });
+          this.currentPhase = phases[0].phase;
+          this.remainingTime = phases[0].time;
+          console.log(
+            `[Crane:nextPhase] New phase for Crane: ${
+              CraneWorkingPhase[this.phases[0].phase]
+            }`
+          );
         } else {
           console.error(
             `[Crane:setStatus] The crane was set to "Working" but no Operation was passed!`
@@ -111,6 +117,25 @@ export class Crane {
         );
         break;
       }
+    }
+  }
+
+  public nextPhase(): void {
+    this.phases.splice(0, 1); // Remove current elapsed operation
+    if (this.phases.length > 0) {
+      console.log(
+        `[Crane:nextPhase] New phase for Crane: ${
+          CraneWorkingPhase[this.phases[0].phase]
+        }`
+      );
+      this.currentPhase = this.phases[0].phase;
+      this.remainingTime = this.phases[0].time;
+    } else {
+      console.log(
+        `[Crane:nextPhase] No new phases, crane operation has been completed`
+      );
+      this.remainingTime = 0;
+      this.setStatus(CraneStatus.Waiting);
     }
   }
 

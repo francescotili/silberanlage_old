@@ -116,64 +116,49 @@ export class SilberAnlage {
     console.log(`[Plant:appendOperation] Bath ${bathId} has called the crane`);
   }
 
+  private transferAuftrag(): void {
+    if (typeof this.baths[this.crane.position].auftrag !== 'undefined') {
+      console.log(
+        `[Plant:updateCrane] Auftrag ${
+          this.baths[this.crane.position].auftrag.number
+        } transfer: Bath ${this.crane.position} -> Crane`
+      );
+      this.crane.auftrag = this.baths[this.crane.position].auftrag;
+      this.baths[this.crane.position].setStatus(BathStatus.Free);
+      this.auftrags.forEach((auftrag) => {
+        if (auftrag.number === this.crane.auftrag.number) {
+          auftrag.setStatus(AuftragStatus.Moving);
+        }
+      });
+    } else if (typeof this.crane.auftrag !== 'undefined') {
+      console.log(
+        `[Plant:updateCrane] Auftrag ${this.crane.auftrag.number} transfer: Crane -> Bath`
+      );
+      this.baths[this.crane.position].setStatus(
+        BathStatus.Working,
+        this.crane.auftrag
+      );
+      this.auftrags.forEach((auftrag) => {
+        if (auftrag.number === this.baths[this.crane.position].auftrag.number) {
+          auftrag.setStatus(AuftragStatus.Working);
+        }
+      });
+      this.crane.auftrag = undefined;
+    }
+  }
+
   public updateCrane(sampleTime: number) {
     switch (this.crane.getStatus()) {
       case CraneStatus.Working: {
         this.crane.updateTime(sampleTime);
 
         if (this.crane.remainingTime <= 0) {
-          console.log('[Plant:updateCrane] Crane phase ended');
-
-          if (this.crane.phases.length >= 1) {
-            // Transfer auftrag if needed
-            if (this.crane.phases[0].transferAuftrag) {
-              if (
-                typeof this.baths[this.crane.position].auftrag !== 'undefined'
-              ) {
-                console.log(
-                  `[Plant:updateCrane] Auftrag ${
-                    this.baths[this.crane.position].auftrag
-                  } transfer: Bath -> Crane`
-                );
-                this.crane.auftrag = this.baths[this.crane.position].auftrag;
-                this.baths[this.crane.position].setStatus(BathStatus.Free);
-                this.auftrags.forEach((auftrag) => {
-                  if (auftrag.number === this.crane.auftrag.number) {
-                    auftrag.setStatus(AuftragStatus.Moving);
-                  }
-                });
-              } else if (typeof this.crane.auftrag !== 'undefined') {
-                console.log(
-                  `[Plant:updateCrane] Auftrag ${this.crane.auftrag} transfer: Crane -> Bath`
-                );
-                this.baths[this.crane.position].setStatus(
-                  BathStatus.Working,
-                  this.crane.auftrag
-                );
-                this.auftrags.forEach((auftrag) => {
-                  if (
-                    auftrag.number ===
-                    this.baths[this.crane.position].auftrag.number
-                  ) {
-                    auftrag.setStatus(AuftragStatus.Working);
-                  }
-                });
-                this.crane.auftrag = undefined;
-              }
-            }
-
-            // Assign next operation if present
-            this.crane.phases.splice(0, 1); // Remove current elapsed operation
-            if (this.crane.phases.length === 1) {
-              this.crane.remainingTime = 0;
-              this.crane.setStatus(CraneStatus.Waiting);
-            } else {
-              this.crane.remainingTime = this.crane.phases[0].time;
-            }
+          this.transferAuftrag();
+          if (typeof this.crane.currentPhase !== 'undefined') {
+            // Crane already in an operation, move to next phase
+            this.crane.nextPhase();
           } else {
-            console.error(
-              `[Plant:updateCrane] Crane is in "Working" status, but Phase queue is 0!`
-            );
+            // Do nothing, at the next cycle the Cran will be in the Waiting status
           }
         }
         break;

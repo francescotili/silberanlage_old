@@ -17,6 +17,17 @@ enum Process {
   Rework,
 }
 
+export const plantSettings = {
+  AgCurrent: 100, // Ampere
+  CuCurrent: 100, // Ampere
+  craneStartingPosition: 31,
+  simulation: {
+    speed: 3, // 1 is realtime, 10 is 10x and so on
+    maxTime: 900, // in seconds, when to end simulation
+    sampleTime: 1,
+  },
+};
+
 /*
  * Hier müssen Standard Laufzeiten für Bäder eingetragen werden (falls vorhanden)
  * Messeinheit ist Sekunden
@@ -274,17 +285,6 @@ export const bathsInitData: BathSettings[] = [
     nextBaths: [3],
   },
 ];
-
-export const plantSettings = {
-  AgCurrent: 100, // Ampere
-  CuCurrent: 100, // Ampere
-  craneStartingPosition: 31,
-  simulation: {
-    speed: 10, // 1 is realtime, 10 is 10x and so on
-    maxTime: 900, // in seconds, when to end simulation
-    sampleTime: 1,
-  },
-};
 
 export const simulationSettings = {
   maxSimulationTime: 1800, // Seconds

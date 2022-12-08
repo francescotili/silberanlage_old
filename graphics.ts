@@ -272,7 +272,10 @@ export class GraphicMotor {
       }
       // Crane
       if (crane.position === bathID) {
-        if (crane.getStatus() !== CraneStatus.Waiting) {
+        if (
+          crane.getStatus() !== CraneStatus.Waiting &&
+          typeof crane.auftrag !== 'undefined'
+        ) {
           this.rendering += this.graphics.crane.middle.full;
         } else {
           this.rendering += this.graphics.crane.middle.empty;
