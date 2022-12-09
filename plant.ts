@@ -11,7 +11,8 @@ enum Scheduler {
 
 enum BathStatus {
   Free,
-  Waiting,
+  WaitingEmpty,
+  WaitingFull,
   Working,
 }
 
@@ -136,7 +137,7 @@ export class SilberAnlage {
       `[Plant:assignDrum] Drum ${drum.number} assigned to Bath ${bath.id}`
     );
     bath.drum = drum;
-    bath.setStatus(BathStatus.Waiting);
+    bath.setStatus(BathStatus.WaitingEmpty);
   }
 
   public updateBaths(sampleTime: number) {
@@ -146,14 +147,14 @@ export class SilberAnlage {
           bath.updateTime(sampleTime);
           if (bath.getTime() <= 0) {
             // Bath has worked the set time
-            bath.setStatus(BathStatus.Waiting);
+            bath.setStatus(BathStatus.WaitingFull);
 
             // Append operation to Crane
             this.appendOperation(bath.id);
           }
           break;
         }
-        case BathStatus.Waiting: {
+        case BathStatus.WaitingEmpty: {
           if (
             bath.type === BathType.LoadingStation &&
             typeof bath.drum !== 'undefined'
@@ -166,6 +167,7 @@ export class SilberAnlage {
           }
           break;
         }
+        case BathStatus.WaitingEmpty:
         case BathStatus.Free:
         default: {
           break;
@@ -322,6 +324,7 @@ export class SilberAnlage {
             // Send operation to crane
             console.log(`[Plant:updateCrane] The crane starts a new operation`);
             this.crane.setStatus(CraneStatus.Working, phases);
+            this.bathsWaiting.splice(i, 1);
             break;
           }
         }

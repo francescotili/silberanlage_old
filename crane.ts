@@ -38,7 +38,6 @@ export class Crane {
 
   public updateTime(sampleTime: number): void {
     this.remainingTime -= sampleTime;
-    console.log(this.remainingTime);
     this.updatePosition();
   }
 

@@ -1,4 +1,3 @@
-import { Auftrag } from './auftrag';
 import { Drum } from './drum';
 import { defaultCraneTimes } from './settings';
 
@@ -24,7 +23,8 @@ enum Priority {
 
 enum BathStatus {
   Free,
-  Waiting,
+  WaitingEmpty,
+  WaitingFull,
   Working,
 }
 
@@ -99,7 +99,8 @@ export class Bath {
         this.drum = undefined;
         break;
       }
-      case BathStatus.Waiting: {
+      case BathStatus.WaitingEmpty:
+      case BathStatus.WaitingFull: {
         this.remainingTime = 0;
         break;
       }
