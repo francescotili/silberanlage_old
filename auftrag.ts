@@ -1,9 +1,11 @@
 import { standardWorkTimes } from './settings';
 
 enum Process {
-  SilverElectroplating,
-  Subcoppering,
+  Silver,
+  Copper,
   Rework,
+  PlantFilling,
+  PlantEmptying,
 }
 
 enum AuftragStatus {
@@ -66,7 +68,7 @@ export class Auftrag {
     }
   }
 
-  public getWorkTime(bathType: BathType | undefined): number {
+  public getWorkTime(bathType: BathType | undefined): number | undefined {
     if (typeof bathType !== 'undefined') {
       switch (bathType) {
         case BathType.Copper: {
@@ -74,54 +76,44 @@ export class Auftrag {
           console.warn(
             '[Auftrag:getWorkTime] Calculation of copper working time not implemented'
           );
-          return 0;
+          return undefined;
         }
         case BathType.Silver: {
           return ((this.silverAmount * (this.quantity / 1000)) / 6.7) * 60;
         }
         case BathType.PreTreatment:
         case BathType.RinseFlow:
-        case BathType.RinseStand: {
-          if (typeof this.workTimeOverride !== 'undefined') {
-            this.workTimeOverride.forEach((workTime) => {
-              if (workTime.bathType === bathType) {
-                return workTime.time;
-              } else {
-                standardWorkTimes.forEach((stdWorkTime) => {
-                  if (stdWorkTime.bathType === bathType) {
-                    return stdWorkTime.time;
-                  } else {
-                    return 0;
-                  }
-                });
-              }
-            });
-          } else {
-            standardWorkTimes.forEach((stdWorkTime) => {
-              if (stdWorkTime.bathType === bathType) {
-                return stdWorkTime.time;
-              } else {
-                return 0;
-              }
-            });
+        case BathType.RinseStand:
+        case BathType.LoadingStation:
+          {
+            if (typeof this.workTimeOverride !== 'undefined') {
+              this.workTimeOverride.forEach((workTime) => {
+                if (workTime.bathType === bathType) {
+                  return workTime.time;
+                } else {
+                  return undefined;
+                }
+              });
+            } else {
+              return undefined;
+            }
           }
-        }
-        case BathType.LoadingStation: {
-          return 60;
-        }
+          {
+            return 60;
+          }
         case BathType.Parkplatz:
         default: {
           console.warn(
             '[Auftrag:getWorkTime] Function called with an unhandled bathType'
           );
-          return 604800; // Infinite time (1 week)
+          return undefined;
         }
       }
     } else {
       console.warn(
         '[Auftrag:getWorkTime] Function called with an undefined bathType'
       );
-      return 0;
+      return undefined;
     }
   }
 

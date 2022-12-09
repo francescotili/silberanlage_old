@@ -255,7 +255,7 @@ export class GraphicMotor {
       this.rendering += this.graphics.indicator;
       // Bath status
       if (typeof baths[bathID].drum !== 'undefined') {
-        if (typeof baths[bathID].drum.auftrag !== 'undefined') {
+        if (typeof baths[bathID].drum.getAuftrag() !== 'undefined') {
           this.rendering += this.graphics.bath.middle.fullFull;
         } else {
           this.rendering += this.graphics.bath.middle.fullEmpty;
@@ -307,11 +307,13 @@ export class GraphicMotor {
       }
       // Auftrag
       if (typeof baths[bathID].drum !== 'undefined') {
-        if (typeof baths[bathID].drum.auftrag !== 'undefined') {
-          this.rendering += baths[bathID].drum.auftrag.number;
+        if (typeof baths[bathID].drum.getAuftrag() !== 'undefined') {
+          this.rendering += baths[bathID].drum.getAuftrag().number;
           for (
             var i = 0;
-            i < this.lengths.auftrag - baths[bathID].drum.auftrag.number.length;
+            i <
+            this.lengths.auftrag -
+              baths[bathID].drum.getAuftrag().number.length;
             i++
           ) {
             this.rendering += this.graphics.whitespace;

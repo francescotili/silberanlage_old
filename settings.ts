@@ -13,9 +13,11 @@ enum BathType {
 }
 
 enum Process {
-  SilverElectroplating,
-  Subcoppering,
+  Silver,
+  Copper,
   Rework,
+  PlantFilling,
+  PlantEmptying,
 }
 
 export const plantSettings = {
@@ -23,7 +25,7 @@ export const plantSettings = {
   CuCurrent: 100, // Ampere
   craneStartingPosition: 31,
   simulation: {
-    speed: 50, // 1 is realtime, 10 is 10x and so on
+    speed: 10, // 1 is realtime, 10 is 10x and so on
     maxTime: 900, // in seconds, when to end simulation
     sampleTime: 1,
   },
@@ -128,7 +130,16 @@ export const bathsInitData: BathSettings[] = [
     name: 'Abkochentfettung',
     type: BathType.PreTreatment,
     is_enabled: true,
-    nextBaths: [7],
+    next: [
+      {
+        process: [Process.Silver, Process.Copper],
+        baths: [7],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [8, 9],
+      },
+    ],
   },
   {
     // Bad 4
@@ -148,84 +159,189 @@ export const bathsInitData: BathSettings[] = [
     type: BathType.PreTreatment,
     is_enabled: true,
     drainTime: 30,
-    nextBaths: [8],
+    next: [
+      {
+        process: [Process.Silver, Process.Copper],
+        baths: [8],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [8, 9],
+      },
+    ],
   },
   {
     // Bad 8
     name: 'Standspüle (Kaskade)',
     type: BathType.RinseStand,
     is_enabled: true,
-    nextBaths: [9],
+    next: [
+      {
+        process: [Process.Silver, Process.Copper],
+        baths: [9],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [10, 13, 18, 26, 30],
+      },
+    ],
   },
   {
     // Bad 9
     name: 'Standspüle (Kaskade)',
     type: BathType.RinseStand,
     is_enabled: true,
-    nextBaths: [10],
+    next: [
+      {
+        process: [Process.Silver, Process.Copper],
+        baths: [10],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [30, 26, 18, 13, 10],
+      },
+    ],
   },
   {
     // Bad 10
     name: 'Fliessspüle',
     type: BathType.RinseFlow,
     is_enabled: true,
-    nextBaths: [11],
+    next: [
+      {
+        process: [Process.Silver, Process.Copper],
+        baths: [11],
+      },
+      {
+        process: [Process.PlantFilling],
+        baths: [31],
+      },
+    ],
   },
   {
     // Bad 11
     name: 'Dekapierung',
     type: BathType.PreTreatment,
     is_enabled: true,
-    nextBaths: [12],
+    next: [
+      {
+        process: [
+          Process.Silver,
+          Process.Copper,
+          Process.Rework,
+          Process.PlantEmptying,
+        ],
+        baths: [12],
+      },
+    ],
   },
   {
     // Bad 12
     name: 'Standspüle',
     type: BathType.RinseStand,
     is_enabled: true,
-    nextBaths: [13],
+    next: [
+      {
+        process: [Process.Silver, Process.Copper, Process.Rework],
+        baths: [13],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [30, 26, 18, 13, 10],
+      },
+    ],
   },
   {
     // Bad 13
     name: 'Fliessspule',
     type: BathType.RinseFlow,
     is_enabled: true,
-    nextBaths: [14, 15, 20, 21],
+    next: [
+      {
+        process: [Process.Copper],
+        baths: [14, 15],
+      },
+      {
+        process: [Process.Silver, Process.Rework],
+        baths: [20, 21],
+      },
+      {
+        process: [Process.PlantFilling],
+        baths: [31],
+      },
+    ],
   },
   {
     // Bad 14
     name: 'Kupfer Elektrolyt',
     type: BathType.Copper,
     is_enabled: true,
-    nextBaths: [16],
+    next: [
+      {
+        process: [Process.Copper, Process.PlantEmptying],
+        baths: [16],
+      },
+    ],
   },
   {
     // Bad 15
     name: 'Kupfer Elektrolyt',
     type: BathType.Copper,
     is_enabled: true,
-    nextBaths: [16],
+    next: [
+      {
+        process: [Process.Copper, Process.PlantEmptying],
+        baths: [16],
+      },
+    ],
   },
   {
     // Bad 16
     name: 'Standspüle (Kaskade)',
     type: BathType.RinseStand,
     is_enabled: true,
-    nextBaths: [17],
+    next: [
+      {
+        process: [Process.Copper],
+        baths: [17],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [30, 26, 18, 13, 10],
+      },
+    ],
   },
   {
     // Bad 17
     name: 'Standspüle (Kaskade)',
     type: BathType.RinseStand,
     is_enabled: true,
-    nextBaths: [18],
+    next: [
+      {
+        process: [Process.Copper],
+        baths: [18],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [30, 26, 18, 13, 10],
+      },
+    ],
   },
   {
     // Bad 18
     name: 'Fließspüle',
     type: BathType.RinseFlow,
     is_enabled: true,
-    nextBaths: [20, 21],
+    next: [
+      {
+        process: [Process.Copper],
+        baths: [20, 21],
+      },
+      {
+        process: [Process.PlantFilling],
+        baths: [31],
+      },
+    ],
   },
   {
     // Bad 19
@@ -237,14 +353,34 @@ export const bathsInitData: BathSettings[] = [
     name: 'Silber Elektrolyt',
     type: BathType.Silver,
     is_enabled: true,
-    nextBaths: [23],
+    next: [
+      {
+        process: [
+          Process.Copper,
+          Process.Silver,
+          Process.Rework,
+          Process.PlantEmptying,
+        ],
+        baths: [23],
+      },
+    ],
   },
   {
     // Bad 21
     name: 'Silber Elektrolyt',
     type: BathType.Silver,
     is_enabled: true,
-    nextBaths: [23],
+    next: [
+      {
+        process: [
+          Process.Copper,
+          Process.Silver,
+          Process.Rework,
+          Process.PlantEmptying,
+        ],
+        baths: [23],
+      },
+    ],
   },
   {
     // Bad 22
@@ -256,14 +392,32 @@ export const bathsInitData: BathSettings[] = [
     name: 'Standspüle (Kaskade)',
     type: BathType.RinseStand,
     is_enabled: true,
-    nextBaths: [24],
+    next: [
+      {
+        process: [Process.Copper, Process.Silver, Process.Rework],
+        baths: [24],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [30, 26, 18, 13, 10],
+      },
+    ],
   },
   {
     // Bad 24
     name: 'Standspüle (Kaskade)',
     type: BathType.RinseStand,
     is_enabled: true,
-    nextBaths: [26],
+    next: [
+      {
+        process: [Process.Copper, Process.Silver, Process.Rework],
+        baths: [26, 30],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [30, 26, 18, 13, 10],
+      },
+    ],
   },
   {
     // Bad 25
@@ -275,42 +429,90 @@ export const bathsInitData: BathSettings[] = [
     name: 'Fliessspüle',
     type: BathType.RinseFlow,
     is_enabled: true,
-    nextBaths: [31],
+    next: [
+      {
+        process: [
+          Process.Copper,
+          Process.Silver,
+          Process.Rework,
+          Process.PlantFilling,
+        ],
+        baths: [31],
+      },
+    ],
   },
   {
     // Bad 27
     name: 'Parkplatz',
     type: BathType.Parkplatz,
     is_enabled: true,
-    nextBaths: [31],
+    next: [
+      {
+        process: [Process.PlantFilling],
+        baths: [31],
+      },
+    ],
   },
   {
     // Bad 28
     name: 'Parkplatz',
     type: BathType.Parkplatz,
     is_enabled: true,
-    nextBaths: [31],
+    next: [
+      {
+        process: [Process.PlantFilling],
+        baths: [31],
+      },
+    ],
   },
   {
     // Bad 29
     name: 'Parkplatz',
     type: BathType.Parkplatz,
     is_enabled: true,
-    nextBaths: [31],
+    next: [
+      {
+        process: [Process.PlantFilling],
+        baths: [31],
+      },
+    ],
   },
   {
     // Bad 30
     name: 'Fliessspüle',
     type: BathType.RinseFlow,
     is_enabled: true,
-    nextBaths: [31],
+    next: [
+      {
+        process: [
+          Process.Copper,
+          Process.Silver,
+          Process.Rework,
+          Process.PlantFilling,
+        ],
+        baths: [31],
+      },
+    ],
   },
   {
     // Position 31
     name: 'Abladestation',
     type: BathType.LoadingStation,
     is_enabled: true,
-    nextBaths: [3],
+    next: [
+      {
+        process: [Process.Copper, Process.Silver],
+        baths: [3],
+      },
+      {
+        process: [Process.PlantEmptying],
+        baths: [10, 13, 18, 26, 30, 27, 28, 29],
+      },
+      {
+        process: [Process.Rework],
+        baths: [11],
+      },
+    ],
   },
 ];
 
@@ -323,21 +525,21 @@ export const aufragToWork: AuftragSettings[] = [
   {
     number: '16458719',
     material: '276.141.011',
-    process: Process.SilverElectroplating,
+    process: Process.Silver,
     silverAmount: 1.299,
     quantity: 40108,
   },
   {
     number: '16364066',
     material: '307.168.011',
-    process: Process.SilverElectroplating,
+    process: Process.Silver,
     silverAmount: 5.56,
     quantity: 40150,
   },
   {
     number: '16477107',
     material: '276.270.021',
-    process: Process.SilverElectroplating,
+    process: Process.Silver,
     silverAmount: 0.68,
     quantity: 50390,
     workTimeOverride: [
@@ -350,14 +552,14 @@ export const aufragToWork: AuftragSettings[] = [
   {
     number: '16473799',
     material: '257.024.101',
-    process: Process.SilverElectroplating,
+    process: Process.Silver,
     silverAmount: 17.345,
     quantity: 18000,
   },
   {
     number: '16473789',
     material: '279.124.011',
-    process: Process.SilverElectroplating,
+    process: Process.Silver,
     silverAmount: 5.983,
     quantity: 30000,
   },

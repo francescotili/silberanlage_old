@@ -1,5 +1,5 @@
 import { Drum } from './drum';
-import { defaultCraneTimes } from './settings';
+import { defaultCraneTimes, standardWorkTimes } from './settings';
 
 export interface BathSettings {
   name?: string;
@@ -7,12 +7,23 @@ export interface BathSettings {
   type?: BathType;
   priority?: Priority;
   drainTime?: number;
-  nextBaths?: number[];
+  next?: {
+    process: Process[];
+    baths: number[];
+  }[];
 }
 
 export interface WorkTime {
   bathType: BathType;
   time: number | undefined;
+}
+
+enum Process {
+  Silver,
+  Copper,
+  Rework,
+  PlantFilling,
+  PlantEmptying,
 }
 
 enum Priority {
@@ -25,6 +36,7 @@ enum BathStatus {
   Free,
   WaitingEmpty,
   WaitingFull,
+  WaitingCrane,
   Working,
 }
 
@@ -49,7 +61,10 @@ export class Bath {
   private status: BathStatus;
   private remainingTime: number | undefined;
   public drum: Drum | undefined;
-  public nextBaths: number[];
+  public next: {
+    process: Process[];
+    baths: number[];
+  }[];
 
   //private tempDrainTime: number;
 
@@ -60,7 +75,9 @@ export class Bath {
       : (this.name = undefined);
     this.is_enabled = bath.is_enabled;
     this.status = BathStatus.Free;
-    this.nextBaths = bath.nextBaths;
+    if (typeof bath.next !== 'undefined') {
+      this.next = bath.next;
+    }
     if (typeof bath.type !== 'undefined') {
       this.type = bath.type;
     }
@@ -88,7 +105,16 @@ export class Bath {
     return this.remainingTime;
   }
 
-  public setStatus(status: BathStatus, drum?: Drum) {
+  private findStdWorkTime(bathType: BathType): number {
+    standardWorkTimes.forEach((workTime) => {
+      if (workTime.bathType === bathType) {
+        return workTime.time;
+      }
+    });
+    return 10; // Extra time for unhandled case...
+  }
+
+  public setStatus(status: BathStatus, passedDrum?: Drum) {
     console.log(
       `[Bath:setStatus] New status requested for bath ${this.id}: ${BathStatus[status]}`
     );
@@ -99,17 +125,50 @@ export class Bath {
         this.drum = undefined;
         break;
       }
+      case BathStatus.WaitingCrane:
       case BathStatus.WaitingEmpty:
       case BathStatus.WaitingFull: {
         this.remainingTime = 0;
         break;
       }
       case BathStatus.Working: {
-        if (typeof drum !== 'undefined') {
-          this.drum = drum;
-          this.remainingTime = drum.getAuftrag().getWorkTime(this.type);
+        if (typeof passedDrum !== 'undefined') {
+          // A new drum has been dropped on bath
+          if (typeof this.drum === 'undefined') {
+            this.drum = passedDrum;
+          } else {
+            console.error(
+              `[Bath:setStatus] Conflict detected on Bath ${this.id}: the Drum ${this.drum.number} is already there and you are trying to drop the Drum ${passedDrum.number}!`
+            );
+          }
         } else {
-          this.remainingTime = this.drum.getAuftrag().getWorkTime(this.type);
+          if (typeof this.drum === 'undefined') {
+            console.error(
+              `[Bath:setStatus] Bath ${this.id} was set to Working but no Drum was passed or is already present!`
+            );
+          }
+        }
+
+        if (typeof this.drum !== 'undefined') {
+          if (typeof this.drum.getAuftrag() !== 'undefined') {
+            // Drum is full
+            if (
+              typeof this.drum.getAuftrag().getWorkTime(this.type) !==
+              'undefined'
+            ) {
+              // This phase has a custom workTime specified in the Auftrag
+              this.remainingTime = this.drum
+                .getAuftrag()
+                .getWorkTime(this.type);
+            } else {
+              // Load default workTime for this Bath
+              this.remainingTime = this.findStdWorkTime(this.type);
+            }
+          } else {
+            // Drum is empty, leave it for 20 second just to make sure the Crane
+            // has time to make other operations
+            this.remainingTime = 20;
+          }
         }
         break;
       }

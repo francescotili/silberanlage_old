@@ -9,10 +9,19 @@ enum Scheduler {
   FCFSPrio,
 }
 
+enum Process {
+  Silver,
+  Copper,
+  Rework,
+  PlantFilling,
+  PlantEmptying,
+}
+
 enum BathStatus {
   Free,
   WaitingEmpty,
   WaitingFull,
+  WaitingCrane,
   Working,
 }
 
@@ -155,19 +164,33 @@ export class SilberAnlage {
           break;
         }
         case BathStatus.WaitingEmpty: {
-          if (
-            bath.type === BathType.LoadingStation &&
-            typeof bath.drum !== 'undefined'
-          ) {
-            // The loading station has an empty Drum
-            this.auftrags[0].setStatus(AuftragStatus.Loading);
-            bath.drum.loadParts(this.auftrags[0]);
-            bath.setStatus(BathStatus.Working);
-            this.auftrags.splice(0, 1); // Remove auftrag from the waiting list
+          if (typeof bath.drum !== 'undefined') {
+            switch (bath.type) {
+              case BathType.LoadingStation: {
+                // The loading station has en empty Drum, load a new Auftrag
+                if (this.auftrags.length > 0) {
+                  this.auftrags[0].setStatus(AuftragStatus.Loading);
+                  bath.drum.loadParts(this.auftrags[0]);
+                  bath.setStatus(BathStatus.Working);
+                  this.auftrags.splice(0, 1); // Remove auftrag from the waiting list
+                }
+                break;
+              }
+              default: {
+                // Append operation to Crane, maybe we can move the empty drum and load something
+                this.appendOperation(bath.id);
+                bath.setStatus(BathStatus.WaitingCrane);
+                break;
+              }
+            }
+          } else {
+            console.error(
+              `[Plant:updateBaths] Bath ${bath.id} error: bath is in WaitingEmpty status but Drum is undefined!`
+            );
           }
-          break;
         }
-        case BathStatus.WaitingEmpty:
+        case BathStatus.WaitingCrane:
+        case BathStatus.WaitingFull:
         case BathStatus.Free:
         default: {
           break;
@@ -183,6 +206,7 @@ export class SilberAnlage {
 
   private transferDrum(): void {
     if (typeof this.baths[this.crane.position].drum !== 'undefined') {
+      // Transfer from Bath to Crane
       console.log(
         `[Plant:updateCrane] Drum ${
           this.baths[this.crane.position].drum.number
@@ -196,22 +220,33 @@ export class SilberAnlage {
         }
       });
     } else if (typeof this.crane.drum !== 'undefined') {
+      // Transfer from Crane to Bath
       console.log(
-        `[Plant:updateCrane] Auftrag ${this.crane.drum.number} transfer: Crane -> Bath`
+        `[Plant:updateCrane] Drum ${this.crane.drum.number} transfer: Crane -> Bath`
       );
-      this.baths[this.crane.position].setStatus(
-        BathStatus.Working,
-        this.crane.drum
-      );
-      this.auftrags.forEach((auftrag) => {
-        if (
-          auftrag.number ===
-          this.baths[this.crane.position].drum.getAuftrag().number
-        ) {
-          auftrag.setStatus(AuftragStatus.Working);
-        }
-      });
-      this.crane.drum = undefined;
+      if (typeof this.crane.drum.getAuftrag() !== 'undefined') {
+        // The drum is full
+        this.baths[this.crane.position].setStatus(
+          BathStatus.Working,
+          this.crane.drum
+        );
+        this.auftrags.forEach((auftrag) => {
+          if (
+            auftrag.number ===
+            this.baths[this.crane.position].drum.getAuftrag().number
+          ) {
+            auftrag.setStatus(AuftragStatus.Working);
+          }
+        });
+        this.crane.drum = undefined;
+      } else {
+        // The drum is empty
+        this.baths[this.crane.position].setStatus(
+          BathStatus.WaitingEmpty,
+          this.crane.drum
+        );
+        this.crane.drum = undefined;
+      }
     }
   }
 
@@ -339,10 +374,34 @@ export class SilberAnlage {
     }
   }
 
-  private findDestinationBath(bath: Bath): Bath | undefined {
-    for (let i = 0; i < bath.nextBaths.length; i++) {
-      if (this.baths[bath.nextBaths[i]].getStatus() === BathStatus.Free) {
-        return this.baths[bath.nextBaths[i]];
+  private findDestinationBath(originBath: Bath): Bath | undefined {
+    let nextBaths: number[] = [];
+    let process: Process;
+
+    // Find the process
+    if (typeof originBath.drum !== 'undefined') {
+      if (typeof originBath.drum.getAuftrag() !== 'undefined') {
+        process = originBath.drum.getAuftrag().process;
+      } else {
+        // Drum is empty
+        process = Process.PlantFilling;
+      }
+    }
+
+    // Scan all the way we can go from this bath and select only the ones we can do
+    // based on the process type
+    originBath.next.forEach((way) => {
+      way.process.forEach((wayProcess) => {
+        if (wayProcess === process) {
+          way.baths.forEach((bath) => nextBaths.push(bath));
+        }
+      });
+    });
+
+    // Now found the first bath that´s free and return that
+    for (let i = 0; i < nextBaths.length; i++) {
+      if (this.baths[nextBaths[i]].getStatus() === BathStatus.Free) {
+        return this.baths[nextBaths[i]];
       }
     }
     return undefined;
