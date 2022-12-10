@@ -106,12 +106,17 @@ export class Bath {
   }
 
   private findStdWorkTime(bathType: BathType): number {
+    let foundWorkTime: number;
     standardWorkTimes.forEach((workTime) => {
       if (workTime.bathType === bathType) {
-        return workTime.time;
+        foundWorkTime = workTime.time;
       }
     });
-    return 10; // Extra time for unhandled case...
+    if (typeof foundWorkTime !== 'undefined') {
+      return foundWorkTime;
+    } else {
+      return 10; // Extra time for unhandled case...
+    }
   }
 
   public setStatus(status: BathStatus, passedDrum?: Drum) {
@@ -165,6 +170,7 @@ export class Bath {
           }
         }
 
+        // Set working time
         if (typeof this.drum !== 'undefined') {
           if (typeof this.drum.getAuftrag() !== 'undefined') {
             // Drum is full

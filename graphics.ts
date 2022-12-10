@@ -36,7 +36,8 @@ export class GraphicMotor {
       label: 'Krane',
       top: '&nbsp;&nbsp;&#9582;',
       middle: {
-        full: '&#9608;&#9608;&#9566;',
+        fullFull: '&#9608;&#9608;&#9566;',
+        fullEmpty: '[]&#9566;',
         empty: '&nbsp;&nbsp;&#9566;',
       },
       bottom: '&nbsp;&nbsp;&#9583;',
@@ -277,7 +278,11 @@ export class GraphicMotor {
           crane.getStatus() !== CraneStatus.Waiting &&
           typeof crane.drum !== 'undefined'
         ) {
-          this.rendering += this.graphics.crane.middle.full;
+          if (typeof crane.drum.getAuftrag() !== 'undefined') {
+            this.rendering += this.graphics.crane.middle.fullFull;
+          } else {
+            this.rendering += this.graphics.crane.middle.fullEmpty;
+          }
         } else {
           this.rendering += this.graphics.crane.middle.empty;
         }

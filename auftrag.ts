@@ -79,7 +79,9 @@ export class Auftrag {
           return undefined;
         }
         case BathType.Silver: {
-          return ((this.silverAmount * (this.quantity / 1000)) / 6.7) * 60;
+          return Math.round(
+            ((this.silverAmount * (this.quantity / 1000)) / 6.7) * 60
+          );
         }
         case BathType.PreTreatment:
         case BathType.RinseFlow:
@@ -99,7 +101,7 @@ export class Auftrag {
             }
           }
           {
-            return 60;
+            return undefined;
           }
         case BathType.Parkplatz:
         default: {

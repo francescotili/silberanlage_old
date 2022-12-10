@@ -25,7 +25,7 @@ export const plantSettings = {
   CuCurrent: 100, // Ampere
   craneStartingPosition: 31,
   simulation: {
-    speed: 10, // 1 is realtime, 10 is 10x and so on
+    speed: 50, // 1 is realtime, 10 is 10x and so on
     maxTime: 900, // in seconds, when to end simulation
     sampleTime: 1,
   },
@@ -42,7 +42,7 @@ export const standardWorkTimes: WorkTime[] = [
   },
   {
     bathType: BathType.LoadingStation,
-    time: 120,
+    time: 120, // 2 minutes
   },
   {
     bathType: BathType.Parkplatz,
@@ -50,11 +50,11 @@ export const standardWorkTimes: WorkTime[] = [
   },
   {
     bathType: BathType.PreTreatment,
-    time: 600,
+    time: 600, // 10 minutes
   },
   {
     bathType: BathType.RinseFlow,
-    time: 900,
+    time: 900, // 15 minutes
   },
   {
     bathType: BathType.RinseStand,
@@ -83,30 +83,14 @@ export const defaultCraneTimes = {
 };
 
 export const drumsInitData: DrumSettings[] = [
-  {
-    number: 1,
-  },
-  {
-    number: 2,
-  },
-  {
-    number: 3,
-  },
-  {
-    number: 4,
-  },
-  {
-    number: 5,
-  },
-  {
-    number: 6,
-  },
-  {
-    number: 7,
-  },
-  {
-    number: 8,
-  },
+  { number: 1 },
+  { number: 2 },
+  { number: 3 },
+  { number: 4 },
+  { number: 5 },
+  { number: 6 },
+  { number: 7 },
+  { number: 8 },
 ];
 
 /*

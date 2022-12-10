@@ -178,7 +178,9 @@ export class SilberAnlage {
 
         case BathStatus.WaitingEmpty: {
           // Bath is Waiting with an empty Drum
-          if (typeof bath.drum !== 'undefined') {
+          bath.updateTime(sampleTime);
+
+          if (bath.getTime() <= 0 && typeof bath.drum !== 'undefined') {
             switch (bath.type) {
               case BathType.LoadingStation: {
                 // The bath is a LoadingStation that has en empty Drum, load a new Auftrag
@@ -198,10 +200,6 @@ export class SilberAnlage {
                 break;
               }
             }
-          } else {
-            console.error(
-              `[Plant:updateBaths] Bath ${bath.id} error: bath is in WaitingEmpty status but Drum is undefined!`
-            );
           }
         }
 
