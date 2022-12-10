@@ -126,7 +126,23 @@ export class Bath {
         break;
       }
       case BathStatus.WaitingCrane:
-      case BathStatus.WaitingEmpty:
+      case BathStatus.WaitingEmpty: {
+        if (typeof passedDrum !== 'undefined') {
+          // A Drum was dropped from the Crane
+          this.drum = passedDrum;
+          this.remainingTime = 5; // To give enough time to the crane, to make something else
+        } else {
+          // No Drum passed, maybe it was assigned at the initialization phase
+          if (typeof this.drum !== 'undefined') {
+            this.remainingTime = 0;
+          } else {
+            console.error(
+              `[Bath:setStatus] Bath ${this.id}: was set to WaitingEmpy but there is no drum in bath, nor one was passed!`
+            );
+          }
+        }
+        break;
+      }
       case BathStatus.WaitingFull: {
         this.remainingTime = 0;
         break;

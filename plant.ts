@@ -245,7 +245,7 @@ export class SilberAnlage {
         });
       }
     } else if (typeof this.crane.drum !== 'undefined') {
-      // Transfer from Crane to Bath
+      // Transfer Drum: Crane -> Bath
       console.log(
         `[Plant:updateCrane] Drum ${this.crane.drum.number} transfer: Crane -> Bath`
       );
