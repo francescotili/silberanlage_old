@@ -75,14 +75,13 @@ export class SilberAnlage {
 
   /*
    * This function initialize the plant
-   * It loads the bath settings and create all the baths as specified,
-   * loading them in the memory for the simulation
+   * It loads the bath settings and create all the baths as specified
    */
   constructor(bathsInitData: BathSettings[], auftragsData: AuftragSettings[]) {
     // Initialize baths
     this.baths = [];
-    for (var i in bathsInitData) {
-      this.baths.push(new Bath(+i, bathsInitData[i]));
+    for (var index in bathsInitData) {
+      this.baths.push(new Bath(+index, bathsInitData[index]));
     }
     this.bathsWaiting = [];
     console.log('[Plant:constructor] Baths created');
@@ -93,14 +92,14 @@ export class SilberAnlage {
 
     // Intialize Drums
     this.drums = [];
-    for (var i in drumsInitData) {
-      this.drums.push(new Drum(drumsInitData[i].number));
+    for (var index in drumsInitData) {
+      this.drums.push(new Drum(drumsInitData[index].number));
     }
-    for (var j in this.drums) {
+    for (var index in this.drums) {
       let destinationBath: number | undefined;
       destinationBath = this.searchBathForDrum();
       if (typeof destinationBath !== 'undefined') {
-        this.assignDrum(this.baths[destinationBath], this.drums[j]);
+        this.assignDrum(this.baths[destinationBath], this.drums[index]);
       }
     }
     console.log('[Plant:constructor] Drum assigned');
@@ -114,17 +113,14 @@ export class SilberAnlage {
   }
 
   private searchBathForDrum(): number | undefined {
+    /*
+     * This function search a free bath for assigning a new empty drum
+     * It will follow this prioritization: LoadingStation, Rinseflow, Parkplatz
+     * If no bath are found, there are no places to assign new Drums
+     */
     for (let i = 0; i < this.baths.length; i++) {
       if (
         this.baths[i].type === BathType.LoadingStation &&
-        typeof this.baths[i].drum === 'undefined'
-      ) {
-        return i;
-      }
-    }
-    for (let i = 0; i < this.baths.length; i++) {
-      if (
-        this.baths[i].type === BathType.Parkplatz &&
         typeof this.baths[i].drum === 'undefined'
       ) {
         return i;
@@ -138,10 +134,21 @@ export class SilberAnlage {
         return i;
       }
     }
+    for (let i = 0; i < this.baths.length; i++) {
+      if (
+        this.baths[i].type === BathType.Parkplatz &&
+        typeof this.baths[i].drum === 'undefined'
+      ) {
+        return i;
+      }
+    }
     return undefined;
   }
 
   private assignDrum(bath: Bath, drum: Drum): void {
+    /*
+     * This function assign the specified Drum to the specified Bath
+     */
     console.log(
       `[Plant:assignDrum] Drum ${drum.number} assigned to Bath ${bath.id}`
     );
@@ -150,24 +157,31 @@ export class SilberAnlage {
   }
 
   public updateBaths(sampleTime: number) {
+    /*
+     * This is the main function that updates all the baths
+     * It is called by the simulation, every `sampleTime` seconds
+     */
     this.baths.forEach((bath) => {
       switch (bath.getStatus()) {
         case BathStatus.Working: {
+          // Bath is Working with a full Drum, update time
           bath.updateTime(sampleTime);
+
+          // If time has reached 0, set the bath to WaitingFull and call the Crane
           if (bath.getTime() <= 0) {
-            // Bath has worked the set time
             bath.setStatus(BathStatus.WaitingFull);
 
-            // Append operation to Crane
             this.appendOperation(bath.id);
           }
           break;
         }
+
         case BathStatus.WaitingEmpty: {
+          // Bath is Waiting with an empty Drum
           if (typeof bath.drum !== 'undefined') {
             switch (bath.type) {
               case BathType.LoadingStation: {
-                // The loading station has en empty Drum, load a new Auftrag
+                // The bath is a LoadingStation that has en empty Drum, load a new Auftrag
                 if (this.auftrags.length > 0) {
                   this.auftrags[0].setStatus(AuftragStatus.Loading);
                   bath.drum.loadParts(this.auftrags[0]);
@@ -177,7 +191,8 @@ export class SilberAnlage {
                 break;
               }
               default: {
-                // Append operation to Crane, maybe we can move the empty drum and load something
+                // The bath is not a LoadingStation, then append operation to Crane
+                // maybe we can move the empty drum forward toward the loadingStation
                 this.appendOperation(bath.id);
                 bath.setStatus(BathStatus.WaitingCrane);
                 break;
@@ -189,6 +204,7 @@ export class SilberAnlage {
             );
           }
         }
+
         case BathStatus.WaitingCrane:
         case BathStatus.WaitingFull:
         case BathStatus.Free:
@@ -200,13 +216,19 @@ export class SilberAnlage {
   }
 
   private appendOperation(bathId: number) {
+    /*
+     * This functions append a new bath to the waiting list for the crane
+     */
     this.bathsWaiting.push(bathId);
     console.log(`[Plant:appendOperation] Bath ${bathId} has called the crane`);
   }
 
   private transferDrum(): void {
+    /*
+     * This function transfer the Drum between the Bath and the Crane
+     */
     if (typeof this.baths[this.crane.position].drum !== 'undefined') {
-      // Transfer from Bath to Crane
+      // Transfer Drum: Bath -> Crane
       console.log(
         `[Plant:updateCrane] Drum ${
           this.baths[this.crane.position].drum.number
@@ -214,11 +236,14 @@ export class SilberAnlage {
       );
       this.crane.drum = this.baths[this.crane.position].drum;
       this.baths[this.crane.position].setStatus(BathStatus.Free);
-      this.auftrags.forEach((auftrag) => {
-        if (auftrag.number === this.crane.drum.getAuftrag().number) {
-          auftrag.setStatus(AuftragStatus.Moving);
-        }
-      });
+      if (typeof this.crane.drum.getAuftrag() !== 'undefined') {
+        // The Drum transferred is full, update the Auftrag
+        this.auftrags.forEach((auftrag) => {
+          if (auftrag.number === this.crane.drum.getAuftrag().number) {
+            auftrag.setStatus(AuftragStatus.Moving);
+          }
+        });
+      }
     } else if (typeof this.crane.drum !== 'undefined') {
       // Transfer from Crane to Bath
       console.log(
